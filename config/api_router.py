@@ -7,8 +7,8 @@ from pulse_ai.therapist_session.api.views import TherapistSessionViewSet
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 
-router.register("users", UserViewSet)
-router.register(r'therapist_session', TherapistSessionViewSet)
+router.register("users", UserViewSet, basename="user")
+router.register(r'therapist_session', TherapistSessionViewSet, basename="therapist")
 
 
 app_name = "api"
