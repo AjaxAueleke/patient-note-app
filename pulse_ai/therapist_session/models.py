@@ -10,7 +10,5 @@ class TherapistSession(models.Model):
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"
 
-    class Meta:
-        app_label = 'patient_note_app.therapist_sessions'
 
 
