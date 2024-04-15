@@ -14,6 +14,4 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
         return TherapistSession.objects.filter(therapist=self.request.user)
 
     def perform_create(self, serializer):
-        # This ensures that the therapist is automatically set to the current user
         serializer.save(therapist=self.request.user)
-

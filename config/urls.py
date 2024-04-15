@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
+from pulse_ai.users.api.views import UserViewSet, UserLoginView, RegisterView
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -35,6 +36,8 @@ urlpatterns += [
     # DRF auth token
     path("auth-token/", obtain_auth_token),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
+    path("users/register", RegisterView.as_view()),
+    path("users/login", UserLoginView.as_view()),
     path(
         "api/docs/",
         SpectacularSwaggerView.as_view(url_name="api-schema"),

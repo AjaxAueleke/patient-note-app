@@ -9,17 +9,13 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
         fields = ['id', 'session_name', 'session_audio']
 
     def validate_session_audio(self, value):
-        if value.file.size > 1024*1024*5:  # Limit file size to 5MB
+        if value.size > 1024*1024*50:  # Limit file size to 5MB
             raise serializers.ValidationError("Audio file is too large ( > 5MB ).")
-        if not value.file.content_type.startswith('audio/mpeg'):
+        if not value.content_type.startswith('audio/mpeg'):
             raise serializers.ValidationError("Invalid file type. MP3 required.")
         mime = magic.Magic(mime=True)
-        mime_type = mime.from_buffer(value.file.read(2048))  # Read the first few bytes to determine MIME type
+        mime_type = mime.from_buffer(value.read(2048))  # Read the first few bytes to determine MIME type
         if not mime_type.startswith('audio'):
             raise serializers.ValidationError('This file is not an audio file.')
-        value.file.seek(0)  # Reset file pointer after reading
+        value.seek(0)  # Reset file pointer after reading
         return value
-
-
-
-
