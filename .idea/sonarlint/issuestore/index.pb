@@ -17,3 +17,15 @@ J
 pulse_ai/users/adapters.py,4/f/4f30720bc0aba0dd6cf72459cb706cf66c0ba4d5
 S
 #pulse_ai/therapist_session/tests.py,2/b/2b4d521e15c6260659bf66caeac7c085243aa994
+G
+config/settings/base.py,6/b/6bf9cb95cce0913f8a34ceb73e143ea3918f740e
+4
+.env,3/c/3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
+H
+config/settings/local.py,a/4/a4b372c97b98db3f4bc440cd12ac5d9fa4cbaf7c
+B
+config/__init__.py,7/c/7c4c5de0ae6801f08fa7c742af850c6198fdb35d
+G
+config/settings/test.py,8/5/85146c63fa52bbe9fd43019f3b80f06055b37ca7
+M
+config/settings/production.py,2/0/20f44695b3e8890908798184baa9e8d11f44ecfb
