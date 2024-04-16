@@ -1,17 +1,37 @@
+from django.core.validators import MinLengthValidator
 from django.db import models
-from pulse_ai.users.models import User
+
 from pulse_ai.therapist_session.validators import validate_audio_mime_type
+from pulse_ai.users.models import User
+
 
 class TherapistSession(models.Model):
-    SESSION_STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('transcribed', 'Transcribed'),
-        ('done', 'Done'),
-    ]
     therapist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='therapist_sessions')
-    session_name = models.CharField(max_length=255)
+    session_name = models.CharField(max_length=50, blank=False, null=False, validators=[MinLengthValidator(5)])
     session_audio = models.FileField(upload_to='sessions/', validators=[validate_audio_mime_type])
-    session_status = models.CharField(max_length=11, choices=SESSION_STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"
+
+
+class Transcription(models.Model):
+    session = models.OneToOneField(TherapistSession, on_delete=models.CASCADE, related_name='transcriptions')
+    transcription_text_file_url = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+
+class Summary(models.Model):
+    transcription = models.ForeignKey(Transcription, on_delete=models.CASCADE, related_name='summaries')
+    summary_text_file_url = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+
+class Error(models.Model):
+    transcription = models.ForeignKey(Transcription, on_delete=models.CASCADE, related_name='errors')
+    error_message = models.TextField()
+    error_code = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
