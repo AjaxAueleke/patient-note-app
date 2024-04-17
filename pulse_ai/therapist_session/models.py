@@ -17,21 +17,19 @@ class TherapistSession(models.Model):
 
 
 class Transcription(models.Model):
-    session = models.OneToOneField(TherapistSession, on_delete=models.CASCADE, related_name='transcriptions')
+    session = models.ForeignKey(TherapistSession, on_delete=models.CASCADE, related_name='transcriptions')
     transcription_text_file_url = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
 
 
 class Summary(models.Model):
-    transcription = models.ForeignKey(Transcription, on_delete=models.CASCADE, related_name='summaries')
+    session = models.ForeignKey(TherapistSession, on_delete=models.CASCADE, related_name='summaries')
     summary_text_file_url = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
 
 
 class Error(models.Model):
-    transcription = models.ForeignKey(Transcription, on_delete=models.CASCADE, related_name='errors')
+    session = models.ForeignKey(TherapistSession, on_delete=models.CASCADE, related_name='errors')
     error_message = models.TextField()
     error_code = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)

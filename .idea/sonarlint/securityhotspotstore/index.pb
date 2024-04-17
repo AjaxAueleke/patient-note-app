@@ -29,3 +29,7 @@ G
 config/settings/test.py,8/5/85146c63fa52bbe9fd43019f3b80f06055b37ca7
 M
 config/settings/production.py,2/0/20f44695b3e8890908798184baa9e8d11f44ecfb
+@
+requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
+j
+:.venv/lib/python3.12/site-packages/django/conf/__init__.py,9/4/949b35cdc26e972a0e6a04729dd852cab0e8cc7b
