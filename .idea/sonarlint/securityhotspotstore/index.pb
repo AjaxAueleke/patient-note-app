@@ -33,3 +33,7 @@ M
 requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
 j
 :.venv/lib/python3.12/site-packages/django/conf/__init__.py,9/4/949b35cdc26e972a0e6a04729dd852cab0e8cc7b
+S
+#pulse_ai/therapist_session/views.py,2/0/208397427f8e59cd75df3d9de626d72f22bf836b
+D
+config/api_router.py,d/2/d2b7fc168811e1a92354c83202278bd2fe0c065d
