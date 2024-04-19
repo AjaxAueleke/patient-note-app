@@ -33,8 +33,8 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             session = serializer.save(therapist=self.request.user)
-            data = {"action": "speech-to-text", "audio_url": session.session_audio.url, "session_id": session.id}
-            self._send_queue_message(data)
+            # data = {"action": "speech-to-text", "audio_url": session.session_audio.url, "session_id": session.id}
+            # self._send_queue_message(data)
         except (ValidationError, IntegrityError) as e:
             logger.error(f"Database error during session creation: {e}")
             # Raise a DRF ValidationError which will be handled by DRF and turned into a 400 Bad Request
@@ -42,7 +42,6 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error(f"Unexpected error during session creation: {e}")
             print(e)
-            # Raise a generic APIException which will result in a 500 Internal Server Error
             raise APIException({"error": "An unexpected error occurred. Please try again later."})
 
     def _send_queue_message(self, data):
