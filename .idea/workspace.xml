@@ -91,7 +91,7 @@
       <workItem from="1713373591205" duration="5128000" />
       <workItem from="1713385508143" duration="1690000" />
       <workItem from="1713477880930" duration="1644000" />
-      <workItem from="1713494976827" duration="1043000" />
+      <workItem from="1713494976827" duration="1190000" />
     </task>
     <servers />
   </component>
@@ -100,21 +100,5 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/pulse_ai/therapist_session/api/views.py</url>
-          <line>19</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/pulse_ai/therapist_session/api/views.py</url>
-          <line>17</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
