@@ -121,11 +121,14 @@ class UpdateProfilePictureView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def patch(self, request, *args, **kwargs):
-        serializer = UserProfilePictureSerializer(instance=request.user, data=request.data, context={'request': request},
-                                                  partial=True)
+        serializer = UserProfilePictureSerializer(instance=request.user, data=request.data,
+                                                  context={'request': request}, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "message": "Profile picture updated", "data": serializer.data},
+            user = serializer.save()
+            profile_picture_url = user.get_profile_picture_url()
+            return Response({"success": True, "message": "Profile picture updated",
+                             "data": {"profile_picture_url": profile_picture_url}},
+
                             status=status.HTTP_200_OK)
         else:
             return Response(
