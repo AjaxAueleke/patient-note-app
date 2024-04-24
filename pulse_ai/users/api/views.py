@@ -59,7 +59,7 @@ class ChangePasswordView(APIView):
             user.set_password(serializer.validated_data['new_password'])
             user.save()
             update_session_auth_hash(request, user)  # Important to keep the session active
-            return Response({"success": True, "message": "Password changed"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"success": True, "message": "Password changed"}, status=status.HTTP_200_OK)
         else:
             return Response({"success": False, "message": "Error changing password", "errors": serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
