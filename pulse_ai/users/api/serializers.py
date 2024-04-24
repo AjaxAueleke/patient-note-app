@@ -24,7 +24,7 @@ class ValidatedImageField(serializers.ImageField):
         w, h = get_image_dimensions(file)
         print("IMAGE HEIGHT:", h)
         print("IMAGE width:", w)
-        max_width = max_height = 8192# pixels
+        max_width = max_height = 8192 # pixels
         if w > max_width or h > max_height:
             raise serializers.ValidationError(f'Image dimensions should not exceed {max_width}x{max_height} pixels.')
 
