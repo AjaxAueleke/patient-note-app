@@ -1,11 +1,10 @@
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
 from django.core.files.images import get_image_dimensions
+from django.db import IntegrityError
 from rest_framework import exceptions
 from rest_framework import serializers
-from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from pulse_ai.users.models import User
@@ -41,39 +40,39 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """
-    Serializer class to register users.
-    This is an organization level sign up.
-
-    Meaning the user will be the owner of the organization.
-    And the organization will have a default team upon signup.
-    Users can be added to the team later.
-    Users can be added to multiple teams later.
-    """
-
     email = serializers.CharField()
     name = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = ["email", "password", "name"]
-        extra_kwargs = {"password": {"write_only": True}, }
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def validate_email(self, value):
+        """
+        Check if a user with this email already exists.
+        """
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with that email already exists.")
+        return value
 
     def validate_password(self, password):
         validate_password(password)
         return password
 
     def create(self, validated_data):
+        """
+        Create a new user instance. If there is an issue during the creation,
+        the error is propagated by raising an IntegrityError.
+        """
         try:
-            # Create a CustomUser
-            user = User.objects.create(email=validated_data["email"], name=validated_data["name"], )
+            user = User.objects.create(email=validated_data["email"], name=validated_data["name"])
             user.set_password(validated_data["password"])
             user.save()
-
             return user
-        except Exception as e:
-            return Response(data={f"Error in UserRegistrationSerializer - {e!s}"}, status=status.HTTP_400_BAD_REQUEST, )
+        except IntegrityError as e:
+            raise IntegrityError(f"Error creating user: {e}")
 
 
 class UserLoginSerializer(TokenObtainPairSerializer):
