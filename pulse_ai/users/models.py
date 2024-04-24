@@ -1,10 +1,11 @@
 from typing import ClassVar
 
+import boto3
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
 from django.db.models import EmailField
 from django.db.models import ImageField
-
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -26,7 +27,6 @@ class User(AbstractUser):
     username = None  # type: ignore[assignment]
     profile_picture = ImageField(_("Profile Picture"), upload_to='profile_pics/', blank=True, null=True)
 
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -40,3 +40,18 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"pk": self.id})
+
+    def get_profile_picture_url(self):
+        if not self.profile_picture:
+            return None
+        s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                                 region_name=settings.AWS_S3_REGION_NAME)
+        try:
+            signed_url = s3_client.generate_presigned_url('get_object',
+                                                          Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                                                                  'Key': f'media/{self.profile_picture.name}', },
+                                                          ExpiresIn=3600 * 24 * 30)  # URL expires in 1 hour
+            return signed_url
+        except Exception as e:
+            return None

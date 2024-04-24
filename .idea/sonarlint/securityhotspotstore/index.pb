@@ -51,3 +51,5 @@ F
 pulse_ai/users/urls.py,2/d/2d35e5b955f3eb1cdacc99ddab0f178c08859f53
 >
 config/urls.py,4/5/45b243d494ecd78f07818174452843086c64845d
+K
+config/settings/__init__.py,4/a/4a3fcb3037675631fca460b18b9d59d4a6932b38

@@ -22,7 +22,7 @@ class ValidatedImageField(serializers.ImageField):
 
         # Check the image resolution
         w, h = get_image_dimensions(file)
-        max_width = max_height = 2048  # pixels
+        max_width = max_height = 4096  # pixels
         if w > max_width or h > max_height:
             raise serializers.ValidationError("Image dimensions should not exceed 2048x2048 pixels.")
 
@@ -34,9 +34,14 @@ class ValidatedImageField(serializers.ImageField):
 
 
 class UserSerializer(serializers.ModelSerializer[User]):
+    profile_picture_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["email", "last_login", "name", "profile_picture"]
+        fields = ["email", "last_login", "name", "profile_picture_url"]
+
+    def get_profile_picture_url(self, obj):
+        return obj.get_profile_picture_url()
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
