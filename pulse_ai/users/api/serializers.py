@@ -1,19 +1,43 @@
 from django.contrib.auth import login
-from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from django.core.files.images import get_image_dimensions
 from rest_framework import exceptions
+from rest_framework import serializers
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-
-
 from pulse_ai.users.models import User
+
+
+class ValidatedImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        # Call the superclass method that validates the uploaded file is an image
+        file = super(ValidatedImageField, self).to_internal_value(data)
+
+        # Check the image size
+        max_upload_size = 5 * 1024 * 1024  # 5MB
+        if file.size > max_upload_size:
+            raise serializers.ValidationError("Image size should not exceed 5MB.")
+
+        # Check the image resolution
+        w, h = get_image_dimensions(file)
+        max_width = max_height = 2048  # pixels
+        if w > max_width or h > max_height:
+            raise serializers.ValidationError("Image dimensions should not exceed 2048x2048 pixels.")
+
+        # Check image type (optional)
+        if file.image.format.lower() not in ['jpeg', 'jpg', 'png']:
+            raise serializers.ValidationError("Image format not supported. Use JPEG or PNG.")
+
+        return file
+
 
 class UserSerializer(serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ["email", "last_login", "name", "password"]
+        fields = ["email", "last_login", "name", "profile_picture"]
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -34,9 +58,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "password", "name"]
-        extra_kwargs = {
-            "password": {"write_only": True},
-        }
+        extra_kwargs = {"password": {"write_only": True}, }
 
     def validate_password(self, password):
         validate_password(password)
@@ -45,19 +67,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             # Create a CustomUser
-            user = User.objects.create(
-                email=validated_data["email"],
-                name=validated_data["name"],
-            )
+            user = User.objects.create(email=validated_data["email"], name=validated_data["name"], )
             user.set_password(validated_data["password"])
             user.save()
 
             return user
         except Exception as e:
-            return Response(
-                data={f"Error in UserRegistrationSerializer - {e!s}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response(data={f"Error in UserRegistrationSerializer - {e!s}"}, status=status.HTTP_400_BAD_REQUEST, )
 
 
 class UserLoginSerializer(TokenObtainPairSerializer):
@@ -104,3 +120,33 @@ class UserLoginSerializer(TokenObtainPairSerializer):
         print(f"response_data in login => {response_data}")
         response_data["token"] = auth_token.key
         return response_data
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Old password is incorrect.")
+        return value
+
+    def validate_new_password(self, value):
+        user = self.context['request'].user
+        validate_password(value, user)
+        return value
+
+
+class UserProfilePictureSerializer(serializers.ModelSerializer):
+    profile_picture = ValidatedImageField()
+
+    class Meta:
+        model = User
+        fields = ['profile_picture']
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.profile_picture = self.validated_data.get('profile_picture', user.profile_picture)
+        user.save()
+        return user

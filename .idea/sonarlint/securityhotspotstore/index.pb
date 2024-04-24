@@ -37,3 +37,17 @@ S
 #pulse_ai/therapist_session/views.py,2/0/208397427f8e59cd75df3d9de626d72f22bf836b
 D
 config/api_router.py,d/2/d2b7fc168811e1a92354c83202278bd2fe0c065d
+K
+pulse_ai/users/api/views.py,3/3/33fad659c135c216ce39a0cbc01f83876da18732
+Q
+!pulse_ai/users/api/serializers.py,5/c/5c3cf6647c44371a3ecad854ad0ae5daac79b628
+H
+pulse_ai/users/models.py,d/4/d49c74bf51910c424f8635c52f77557e9ff6c6a6
+J
+pulse_ai/users/managers.py,9/5/95b6d3630d34396e5c6538bfea46e045bbd0af6f
+G
+pulse_ai/users/views.py,3/6/36a3d8c803ad62ce87fb2fd28fb23f29e2a5b14f
+F
+pulse_ai/users/urls.py,2/d/2d35e5b955f3eb1cdacc99ddab0f178c08859f53
+>
+config/urls.py,4/5/45b243d494ecd78f07818174452843086c64845d
