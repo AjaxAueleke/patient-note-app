@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, update_session_auth_hash
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.mixins import RetrieveModelMixin, DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
