@@ -22,9 +22,11 @@ class ValidatedImageField(serializers.ImageField):
 
         # Check the image resolution
         w, h = get_image_dimensions(file)
-        max_width = max_height = 4096  # pixels
+        print("IMAGE HEIGHT:", h)
+        print("IMAGE width:", w)
+        max_width = max_height = 8192# pixels
         if w > max_width or h > max_height:
-            raise serializers.ValidationError("Image dimensions should not exceed 2048x2048 pixels.")
+            raise serializers.ValidationError(f'Image dimensions should not exceed {max_width}x{max_height} pixels.')
 
         # Check image type (optional)
         if file.image.format.lower() not in ['jpeg', 'jpg', 'png']:
