@@ -51,7 +51,7 @@ class User(AbstractUser):
             signed_url = s3_client.generate_presigned_url('get_object',
                                                           Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
                                                                   'Key': f'media/{self.profile_picture.name}', },
-                                                          ExpiresIn=3600 * 24 * 30)  # URL expires in 1 hour
+                                                          ExpiresIn=3600 * 24 * 6)  # URL expires in 1 hour
             return signed_url
         except Exception as e:
             return None
