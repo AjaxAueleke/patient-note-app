@@ -59,3 +59,5 @@ T
 $pulse_ai/users/context_processors.py,c/d/cd1c4624d41f2994a12e897c4cba2d2a142be71a
 J
 pulse_ai/users/__init__.py,8/e/8e05c4fc931843103f09a87714afceb499b6548e
+9
+	manage.py,3/1/3156ad13e4d695cd526bbb7b031016ecba842270

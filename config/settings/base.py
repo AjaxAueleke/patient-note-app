@@ -223,7 +223,7 @@ SOCIALACCOUNT_FORMS = {"signup": "pulse_ai.users.forms.UserSocialSignupForm"}
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": (
     "rest_framework_simplejwt.authentication.JWTAuthentication",
-    "rest_framework.authentication.TokenAuthentication",),
+   ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema", }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
