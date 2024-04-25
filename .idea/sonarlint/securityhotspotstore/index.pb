@@ -61,3 +61,13 @@ J
 pulse_ai/users/__init__.py,8/e/8e05c4fc931843103f09a87714afceb499b6548e
 9
 	manage.py,3/1/3156ad13e4d695cd526bbb7b031016ecba842270
+<
+docs/conf.py,2/5/254a2da7a740675e537439eb88e32083b9ea4771
+s
+C.venv/lib/python3.12/site-packages/django-stubs/middleware/csrf.pyi,d/6/d697a605516d880013823329d44648beee4e70d9
+l
+<.venv/lib/python3.12/site-packages/django/middleware/csrf.py,a/f/affa2fce7485607391a32bccd472edde235723c4
+x
+H.venv/lib/python3.12/site-packages/django/contrib/sessions/middleware.py,e/6/e69ed5a89fc0e5b8613b46bb506192bb58213081
+>
+.gitattributes,2/4/24139dae656713ba861751fb2c2ac38839349a7a

@@ -8,6 +8,7 @@ from django.db.models import EmailField
 from django.db.models import ImageField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema_field
 
 from .managers import UserManager
 
@@ -41,6 +42,7 @@ class User(AbstractUser):
         """
         return reverse("users:detail", kwargs={"pk": self.id})
 
+    @extend_schema_field(str)
     def get_profile_picture_url(self):
         if not self.profile_picture:
             return None
