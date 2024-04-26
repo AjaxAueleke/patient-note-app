@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.Us
 MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware",
               "django.middleware.security.SecurityMiddleware",
               "corsheaders.middleware.CorsMiddleware",
-              # "django.contrib.sessions.middleware.SessionMiddleware",
+              "django.contrib.sessions.middleware.SessionMiddleware",
               "django.middleware.locale.LocaleMiddleware",
               "django.middleware.common.CommonMiddleware",
               # "django.middleware.csrf.CsrfViewMiddleware",
