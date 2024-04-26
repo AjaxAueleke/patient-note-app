@@ -73,3 +73,19 @@ H.venv/lib/python3.12/site-packages/django/contrib/sessions/middleware.py,e/6/e
 .gitattributes,2/4/24139dae656713ba861751fb2c2ac38839349a7a
 L
 pulse_ai/users/middleware.py,c/9/c9370afa12a2ddbd403cd8bdb6a2f86dc1a5416c
+r
+B.venv/lib/python3.12/site-packages/django/core/servers/basehttp.py,6/8/68129d553649ce14eeeaf4d7e04207e9be8b88dc
+q
+A.venv/lib/python3.12/site-packages/django/core/management/base.py,f/5/f58c0f76c5a689c4893b954c28baa25e93957684
+L
+pulse_ai/templates/base.html,7/d/7d3215ab2f078ca6503cedf73cd17c58fa0efcb8
+K
+pulse_ai/templates/500.html,f/f/ffb8300d71256fbca189da0644e203c789bde7f7
+K
+pulse_ai/templates/404.html,d/7/d774641c3969d0ceef51939a499a0d0ab683a732
+P
+ pulse_ai/templates/403_csrf.html,f/d/fd298a19b2f95fe4b38f58ed243ad38fc40c8e9f
+K
+pulse_ai/templates/403.html,3/c/3c595c6725bef80a0771bb7992e309b94074d57c
+@
+locale/README.md,d/0/d0bd63a421be726b709953370ad2114ee688db5a
