@@ -62,14 +62,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         Validate the email format and check if a user with this email already exists.
         """
-        # Validate the email format
         validator = EmailValidator()
         try:
             validator(value)
         except DjangoValidationError as e:
             raise serializers.ValidationError('Invalid email format.') from e
 
-        # Check for existing email
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("A user with that email already exists.")
 
