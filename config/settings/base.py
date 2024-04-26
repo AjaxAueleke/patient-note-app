@@ -105,12 +105,14 @@ AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.Us
 # MIDDLEWARE
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
-MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware",
-              "django.middleware.security.SecurityMiddleware", "corsheaders.middleware.CorsMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.locale.LocaleMiddleware",
-    "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware", "allauth.account.middleware.AccountMiddleware", ]
+MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware", "django.middleware.security.SecurityMiddleware",
+              "corsheaders.middleware.CorsMiddleware", "django.contrib.sessions.middleware.SessionMiddleware",
+              "django.middleware.locale.LocaleMiddleware", "django.middleware.common.CommonMiddleware",
+              # "django.middleware.csrf.CsrfViewMiddleware",
+              "django.contrib.auth.middleware.AuthenticationMiddleware",
+              "django.contrib.messages.middleware.MessageMiddleware",
+              "django.middleware.clickjacking.XFrameOptionsMiddleware",
+              "allauth.account.middleware.AccountMiddleware", ]
 
 # STATIC
 # ------------------------------------------------------------------------------
@@ -221,7 +223,7 @@ SOCIALACCOUNT_FORMS = {"signup": "pulse_ai.users.forms.UserSocialSignupForm"}
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema", }
+                  "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema", }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
@@ -282,5 +284,5 @@ AWS_REGION = env("AWS_REGION", default=None)
 CELERY_BROKER_URL = f'sqs://{SQS_AWS_ACCESS_KEY_ID}:{SQS_AWS_SECRET_ACCESS_KEY}@'
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {'region': AWS_REGION, 'polling-interval': 20, 'visibility_timeout': 300,
-    'queue_name_prefix': 'pulse-ai-'}
+                                   'queue_name_prefix': 'pulse-ai-'}
 SQS_URL = env("SQS_URL", default=None)
