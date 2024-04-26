@@ -71,3 +71,5 @@ x
 H.venv/lib/python3.12/site-packages/django/contrib/sessions/middleware.py,e/6/e69ed5a89fc0e5b8613b46bb506192bb58213081
 >
 .gitattributes,2/4/24139dae656713ba861751fb2c2ac38839349a7a
+L
+pulse_ai/users/middleware.py,c/9/c9370afa12a2ddbd403cd8bdb6a2f86dc1a5416c
