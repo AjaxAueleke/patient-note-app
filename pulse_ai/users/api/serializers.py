@@ -1,6 +1,8 @@
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.files.images import get_image_dimensions
+from django.core.validators import EmailValidator
 from django.db import IntegrityError
 from rest_framework import exceptions
 from rest_framework import serializers
@@ -24,7 +26,7 @@ class ValidatedImageField(serializers.ImageField):
         w, h = get_image_dimensions(file)
         print("IMAGE HEIGHT:", h)
         print("IMAGE width:", w)
-        max_width = max_height = 8192 # pixels
+        max_width = max_height = 8192  # pixels
         if w > max_width or h > max_height:
             raise serializers.ValidationError(f'Image dimensions should not exceed {max_width}x{max_height} pixels.')
 
@@ -58,10 +60,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         """
-        Check if a user with this email already exists.
+        Validate the email format and check if a user with this email already exists.
         """
+        # Validate the email format
+        validator = EmailValidator()
+        try:
+            validator(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError('Invalid email format.') from e
+
+        # Check for existing email
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("A user with that email already exists.")
+
         return value
 
     def validate_password(self, password):

@@ -25,8 +25,6 @@ urlpatterns += [path("api/", include("config.api_router")), path("auth-token/", 
                 path("api/docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs", ), ]
 
 if settings.DEBUG:
-    # This allows the error pages to be debugged during development, just visit
-    # these url in browser to see how these error pages look like.
     urlpatterns += [path("400/", default_views.bad_request, kwargs={"exception": Exception("Bad Request!")}, ),
                     path("403/", default_views.permission_denied,
                          kwargs={"exception": Exception("Permission Denied")}, ),
