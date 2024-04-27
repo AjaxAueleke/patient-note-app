@@ -37,6 +37,7 @@ CACHES = {
         "LOCATION": "",
     },
 }
+CORS_ORIGIN_ALLOW_ALL = True
 # SECURITY
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header

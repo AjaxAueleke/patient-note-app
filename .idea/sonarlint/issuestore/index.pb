@@ -91,3 +91,7 @@ K
 locale/README.md,d/0/d0bd63a421be726b709953370ad2114ee688db5a
 >
 config/wsgi.py,7/a/7a4aaa54a3efb112f8e2592ed1507e33ab6a7b8c
+l
+<.venv/lib/python3.12/site-packages/rest_framework/routers.py,3/0/3084580f56acce8d3da34ef88093895f4435c914
+f
+6.venv/lib/python3.12/site-packages/django/urls/conf.py,d/9/d968f0a40665dde0d9c74fafb8fc8ac61d5aee05
