@@ -28,16 +28,9 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
         assert isinstance(self.request.user.id, int)
         return self.queryset.filter(id=self.request.user.id)
 
-    def destroy(self, request, *args, **pk):
+    def destroy(self, request, *args):
         # Get the user from the request (i.e., the logged-in user)
         user = request.user
-
-        # Check if the user is trying to delete another user's data
-        if int(pk) != user.id:
-            return Response({"success": False, "message": "You can only delete your own account."},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        # Proceed with the deletion
         user.delete()
         return Response({"success": True, "message": "User account has been successfully deleted."},
                         status=status.HTTP_204_NO_CONTENT)
