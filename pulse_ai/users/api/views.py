@@ -33,7 +33,7 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
         user = request.user
         user.delete()
         return Response({"success": True, "message": "User account has been successfully deleted."},
-                        status=status.HTTP_204_NO_CONTENT)
+                        status=status.HTTP_200_OK)
 
     @action(detail=False)
     def me(self, request):

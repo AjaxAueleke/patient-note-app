@@ -37,14 +37,16 @@ class TherapistSession(models.Model):
 
 class Transcription(models.Model):
     session = models.ForeignKey(TherapistSession, on_delete=models.CASCADE, related_name='transcriptions')
-    transcription_text_file_url = models.CharField(max_length=255)
+    transcription_text_file = models.FileField(upload_to='transcriptions/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 
 class Summary(models.Model):
     session = models.ForeignKey(TherapistSession, on_delete=models.CASCADE, related_name='summaries')
-    summary_text_file_url = models.CharField(max_length=255)
+    summary_text_file = models.FileField(upload_to='summaries/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 
 class Error(models.Model):
