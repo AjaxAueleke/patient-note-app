@@ -65,7 +65,7 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TherapistSession
-        fields = ['id', 'session_name', 'session_audio', 'session_audio_url', 'errors', 'summaries', 'transcriptions']
+        fields = ['id', 'session_name', 'session_audio', 'session_audio_url', 'errors', 'summaries', 'transcriptions', 'status']
 
     def get_session_audio_url(self, obj):
         return obj.get_session_audio_url()
