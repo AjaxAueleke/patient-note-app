@@ -59,9 +59,9 @@ class TranscriptionSerializer(serializers.ModelSerializer):
 class TherapistSessionSerializer(serializers.ModelSerializer):
     session_audio = serializers.FileField()
     session_audio_url = serializers.SerializerMethodField()
-    errors = ErrorSerializer(many=True, read_only=True, source='errors_set')
-    summaries = SummarySerializer(many=True, read_only=True, source='summaries_set')
-    transcriptions = TranscriptionSerializer(many=True, read_only=True, source='transcriptions_set')
+    errors = ErrorSerializer(many=True, read_only=True)
+    summaries = SummarySerializer(many=True, read_only=True)
+    transcriptions = TranscriptionSerializer(many=True, read_only=True)
 
     class Meta:
         model = TherapistSession

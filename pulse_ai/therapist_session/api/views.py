@@ -80,6 +80,7 @@ class SessionDataView(APIView):
             if error_serializer.is_valid():
                 error_serializer.save()
                 session.status = 'failed'
+                session.save()
                 return Response(error_serializer.data, status=status.HTTP_201_CREATED)
             return Response({'success': False, 'errors': error_serializer.errors, 'message': 'Invalid data'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -94,6 +95,7 @@ class SessionDataView(APIView):
                 transcription_serializer.save()
                 summary_serializer.save()
                 session.status = 'done'
+                session.save()
                 return Response({'success': True, 'message': 'Transcription and summary added',
                                  'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
                                 status=status.HTTP_201_CREATED)
