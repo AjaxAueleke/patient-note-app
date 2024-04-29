@@ -95,3 +95,5 @@ l
 <.venv/lib/python3.12/site-packages/rest_framework/routers.py,3/0/3084580f56acce8d3da34ef88093895f4435c914
 f
 6.venv/lib/python3.12/site-packages/django/urls/conf.py,d/9/d968f0a40665dde0d9c74fafb8fc8ac61d5aee05
+W
+'pulse_ai/therapist_session/s3_client.py,d/9/d91b7f442b5f548338723ffd0160316202aebbaf

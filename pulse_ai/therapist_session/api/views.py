@@ -63,23 +63,29 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
 
 class SessionDataView(APIView):
     def post(self, request, session_id):
+        api_key = request.headers.get('X-API-KEY')
+        if api_key != settings.THERAPIST_SESSION_POST_API_KEY:
+            return Response({'success': False, 'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
         session = TherapistSession.objects.filter(id=session_id).first()
         if not session:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'success': False, 'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        error = request.data.get('error', 'false').lower() == 'true'
+        error = request.data.get('error', 'false').lower().strip(' ').strip() == 'true'
 
         if error:
             error_serializer = ErrorSerializer(
                 data={'session': session_id, 'error_message': request.data.get('error_message', ''),
-                    'error_code': request.data.get('error_code', '')})
+                      'error_code': request.data.get('error_code', '')})
             if error_serializer.is_valid():
                 error_serializer.save()
+                session.status = 'failed'
                 return Response(error_serializer.data, status=status.HTTP_201_CREATED)
-            return Response(error_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'errors': error_serializer.errors, 'message': 'Invalid data'},
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             transcription_data = {'session': session_id,
-                'transcription_text_file': request.FILES.get('transcription_file')}
+                                  'transcription_text_file': request.FILES.get('transcription_file')}
             summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
             transcription_serializer = TranscriptionSerializer(data=transcription_data)
             summary_serializer = SummarySerializer(data=summary_data)
@@ -87,12 +93,15 @@ class SessionDataView(APIView):
             if transcription_serializer.is_valid() and summary_serializer.is_valid():
                 transcription_serializer.save()
                 summary_serializer.save()
-                return Response({'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
-                    status=status.HTTP_201_CREATED)
+                session.status = 'done'
+                return Response({'success': True, 'message': 'Transcription and summary added',
+                                 'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
+                                status=status.HTTP_201_CREATED)
             else:
                 errors = {}
                 if not transcription_serializer.is_valid():
                     errors['transcription'] = transcription_serializer.errors
                 if not summary_serializer.is_valid():
                     errors['summary'] = summary_serializer.errors
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
+                                status=status.HTTP_400_BAD_REQUEST)

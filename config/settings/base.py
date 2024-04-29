@@ -289,3 +289,5 @@ CELERY_BROKER_URL = f'sqs://{SQS_AWS_ACCESS_KEY_ID}:{SQS_AWS_SECRET_ACCESS_KEY}@
 CELERY_BROKER_TRANSPORT_OPTIONS = {'region': AWS_REGION, 'polling-interval': 20, 'visibility_timeout': 300,
                                    'queue_name_prefix': 'pulse-ai-'}
 SQS_URL = env("SQS_URL", default=None)
+
+THERAPIST_SESSION_POST_API_KEY = env("THERAPIST_SESSION_POST_API_KEY", default=None)
