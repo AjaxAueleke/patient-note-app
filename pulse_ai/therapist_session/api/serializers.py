@@ -23,8 +23,8 @@ class SummarySerializer(serializers.ModelSerializer):
         return obj.get_summary_url()
 
     def validate_summary_text_file(self, value):
-        if value.size > 1024 * 1024 * 5:  # Limiting file size to 5 MB
-            raise serializers.ValidationError("File is too large ( > 5MB ).")
+        if value.size > 1024 * 1024 * 2:  # Limiting file size to 2 MB
+            raise serializers.ValidationError("File is too large ( > 2MB ).")
         mime = magic.Magic(mime=True)
         mime_type = mime.from_buffer(value.read(2048))
         if not mime_type.startswith('text'):
@@ -46,8 +46,8 @@ class TranscriptionSerializer(serializers.ModelSerializer):
         return obj.get_transcription_url()
 
     def validate_transcription_text_file(self, value):
-        if value.size > 1024 * 1024 * 5:  # Limiting file size to 5 MB
-            raise serializers.ValidationError("File is too large ( > 5MB ).")
+        if value.size > 1024 * 1024 * 2:
+            raise serializers.ValidationError("File is too large ( > 2MB ).")
         mime = magic.Magic(mime=True)
         mime_type = mime.from_buffer(value.read(2048))
         if not mime_type.startswith('text'):
