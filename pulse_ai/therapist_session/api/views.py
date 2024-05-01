@@ -38,6 +38,8 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
         try:
             session = serializer.save(therapist=self.request.user)
             data = {"action": "speech-to-text", "audio_url": session.session_audio.url, "session_id": session.id}
+            print("QUEUE DATA: ")
+            print(data)
             self._send_queue_message(data)
         except (ValidationError, IntegrityError) as e:
             logger.error(f"Database error during session creation: {e}")
