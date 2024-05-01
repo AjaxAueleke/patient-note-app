@@ -1,4 +1,4 @@
-name: Pulse AI Deployement
+ame: Pulse AI Deployement
 
 on:
   push:
@@ -21,11 +21,17 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: 22
         script: |
-          cd /home/ubuntu/patient-note-app
+          set -x
+          echo "Starting deployment..."
+          cd /home/ubuntu/patient-note-app || exit
+          echo "Pulled latest code from git..."
           git pull
+          echo "Installing dependencies..."
           pip install -r requirements.txt
-          # Migrate the database
+          echo "Migrating the database..."
           python manage.py migrate
-          # Optionally you might want to restart Gunicorn
+          echo "Restarting Gunicorn service..."
           sudo systemctl restart gunicorn
+          echo "Reloading systemd daemon..."
           sudo systemctl daemon-reload
+          echo "Deployment completed successfully."
