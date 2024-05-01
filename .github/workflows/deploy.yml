@@ -1,0 +1,32 @@
+name: Pulse AI Deployement
+
+on:
+  push:
+    branches: [ pulse_ai ]
+  pull_request:
+    branches: [ pulse_ai ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/pulse_ai' && github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: SSH and Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          cd /home/ubuntu/patient-note-app
+          git pull
+          pip install -r requirements.txt
+          # Migrate the database
+          python manage.py migrate
+          # Optionally you might want to restart Gunicorn
+          sudo systemctl restart gunicorn
+          sudo systemctl daemon-reload

@@ -9,6 +9,7 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
+from pulse_ai.therapist_session.api.views import SessionDataView
 from pulse_ai.users.api.views import UserLoginView, RegisterView, ChangePasswordView, UpdateProfilePictureView
 
 urlpatterns = [path(settings.ADMIN_URL, admin.site.urls),
@@ -22,6 +23,7 @@ urlpatterns += [path("api/", include("config.api_router")), path("auth-token/", 
                 path("users/register", RegisterView.as_view()), path("users/login", UserLoginView.as_view()),
                 path("users/password", ChangePasswordView.as_view()),
                 path("users/picture", UpdateProfilePictureView.as_view()),
+                path("session-data/<int:session_id>/", SessionDataView.as_view(), name="session-data"),
                 path("api/docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs", ), ]
 
 if settings.DEBUG:

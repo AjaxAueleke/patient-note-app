@@ -1,6 +1,5 @@
 from typing import ClassVar
 
-import boto3
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
@@ -10,6 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 
+from pulse_ai.therapist_session.s3_client import S3Client
 from .managers import UserManager
 
 
@@ -46,9 +46,7 @@ class User(AbstractUser):
     def get_profile_picture_url(self):
         if not self.profile_picture:
             return None
-        s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                                 region_name=settings.AWS_S3_REGION_NAME)
+        s3_client = S3Client.get_instance()
         try:
             signed_url = s3_client.generate_presigned_url('get_object',
                                                           Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
