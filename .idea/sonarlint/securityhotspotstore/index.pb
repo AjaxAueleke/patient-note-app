@@ -1,10 +1,4 @@
 
-9
-	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
-S
-#pulse_ai/therapist_session/admin.py,a/2/a2ece4012804baeb3bbf40b8322e4fe13b25c73f
-R
-"pulse_ai/therapist_session/apps.py,4/8/480d23c87efa1fdfc6a24a8bdb99996dfa52e63d
 T
 $pulse_ai/therapist_session/models.py,a/8/a85da1a30553b38bf34c4cde07b1ea2d0783937c
 ]
@@ -13,20 +7,12 @@ X
 (pulse_ai/therapist_session/validators.py,3/9/394ff6cc8e36d3861fc655a12672625fcad5ffb0
 W
 'pulse_ai/therapist_session/api/views.py,3/e/3ecf997c5d464ee1ce05bc1a691e98e1fcffab7f
-J
-pulse_ai/users/adapters.py,4/f/4f30720bc0aba0dd6cf72459cb706cf66c0ba4d5
-S
-#pulse_ai/therapist_session/tests.py,2/b/2b4d521e15c6260659bf66caeac7c085243aa994
 G
 config/settings/base.py,6/b/6bf9cb95cce0913f8a34ceb73e143ea3918f740e
 4
 .env,3/c/3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
-H
-config/settings/local.py,a/4/a4b372c97b98db3f4bc440cd12ac5d9fa4cbaf7c
 B
 config/__init__.py,7/c/7c4c5de0ae6801f08fa7c742af850c6198fdb35d
-G
-config/settings/test.py,8/5/85146c63fa52bbe9fd43019f3b80f06055b37ca7
 M
 config/settings/production.py,2/0/20f44695b3e8890908798184baa9e8d11f44ecfb
 @
@@ -43,26 +29,10 @@ Q
 !pulse_ai/users/api/serializers.py,5/c/5c3cf6647c44371a3ecad854ad0ae5daac79b628
 H
 pulse_ai/users/models.py,d/4/d49c74bf51910c424f8635c52f77557e9ff6c6a6
-J
-pulse_ai/users/managers.py,9/5/95b6d3630d34396e5c6538bfea46e045bbd0af6f
-G
-pulse_ai/users/views.py,3/6/36a3d8c803ad62ce87fb2fd28fb23f29e2a5b14f
 F
 pulse_ai/users/urls.py,2/d/2d35e5b955f3eb1cdacc99ddab0f178c08859f53
 >
 config/urls.py,4/5/45b243d494ecd78f07818174452843086c64845d
-K
-config/settings/__init__.py,4/a/4a3fcb3037675631fca460b18b9d59d4a6932b38
-G
-pulse_ai/users/forms.py,7/c/7cc2769256e9ae38f1d0620f8a7b51d8fecaa20b
-T
-$pulse_ai/users/context_processors.py,c/d/cd1c4624d41f2994a12e897c4cba2d2a142be71a
-J
-pulse_ai/users/__init__.py,8/e/8e05c4fc931843103f09a87714afceb499b6548e
-9
-	manage.py,3/1/3156ad13e4d695cd526bbb7b031016ecba842270
-<
-docs/conf.py,2/5/254a2da7a740675e537439eb88e32083b9ea4771
 s
 C.venv/lib/python3.12/site-packages/django-stubs/middleware/csrf.pyi,d/6/d697a605516d880013823329d44648beee4e70d9
 l
@@ -79,18 +49,6 @@ q
 A.venv/lib/python3.12/site-packages/django/core/management/base.py,f/5/f58c0f76c5a689c4893b954c28baa25e93957684
 L
 pulse_ai/templates/base.html,7/d/7d3215ab2f078ca6503cedf73cd17c58fa0efcb8
-K
-pulse_ai/templates/500.html,f/f/ffb8300d71256fbca189da0644e203c789bde7f7
-K
-pulse_ai/templates/404.html,d/7/d774641c3969d0ceef51939a499a0d0ab683a732
-P
- pulse_ai/templates/403_csrf.html,f/d/fd298a19b2f95fe4b38f58ed243ad38fc40c8e9f
-K
-pulse_ai/templates/403.html,3/c/3c595c6725bef80a0771bb7992e309b94074d57c
-@
-locale/README.md,d/0/d0bd63a421be726b709953370ad2114ee688db5a
->
-config/wsgi.py,7/a/7a4aaa54a3efb112f8e2592ed1507e33ab6a7b8c
 l
 <.venv/lib/python3.12/site-packages/rest_framework/routers.py,3/0/3084580f56acce8d3da34ef88093895f4435c914
 f
