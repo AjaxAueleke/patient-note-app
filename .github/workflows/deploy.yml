@@ -26,6 +26,8 @@ jobs:
           cd /home/ubuntu/patient-note-app || exit
           echo "Pulled latest code from git..."
           git pull
+          echo "Activating the virtual environment"
+          source /home/ubuntu/patient-note-app/.venv/bin/activate
           echo "Installing dependencies..."
           pip install -r requirements.txt
           echo "Migrating the database..."
