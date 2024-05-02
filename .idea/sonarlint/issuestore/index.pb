@@ -99,3 +99,7 @@ W
 'pulse_ai/therapist_session/s3_client.py,d/9/d91b7f442b5f548338723ffd0160316202aebbaf
 L
 .github/workflows/deploy.yml,f/1/f130ad0d1d16d0d70ec30d355f736ae3784b05cf
+G
+pulse_ai/users/admin.py,6/f/6fda098a560cd1235d9d4947267df12633712b02
+F
+pulse_ai/users/apps.py,7/2/72c720ea09b132a33bd8d3771f0e9a9bf33b8fd1

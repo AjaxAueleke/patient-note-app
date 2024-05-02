@@ -12,10 +12,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from pulse_ai.therapist_session.api.views import SessionDataView
 from pulse_ai.users.api.views import UserLoginView, RegisterView, ChangePasswordView, UpdateProfilePictureView
 
-urlpatterns = [path(settings.ADMIN_URL, admin.site.urls),
-               path("users/", include("pulse_ai.users.urls", namespace="users")),
-               path("accounts/", include("allauth.urls")),
-               *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT), ]
+urlpatterns = []
 
 # API URLS
 urlpatterns += [path("api/", include("config.api_router")), path("auth-token/", obtain_auth_token),
