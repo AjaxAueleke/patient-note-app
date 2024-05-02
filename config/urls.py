@@ -15,7 +15,8 @@ from pulse_ai.users.api.views import UserLoginView, RegisterView, ChangePassword
 urlpatterns = []
 
 # API URLS
-urlpatterns += [path("api/", include("config.api_router")), path("auth-token/", obtain_auth_token),
+urlpatterns += [
+    path("api/", include("config.api_router")),
                 path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
                 path("users/register", RegisterView.as_view()), path("users/login", UserLoginView.as_view()),
                 path("users/password", ChangePasswordView.as_view()),
