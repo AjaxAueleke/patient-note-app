@@ -5,9 +5,11 @@ import boto3
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import APIException, ValidationError as DRFValidationError
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,19 +22,28 @@ from .serializers import TranscriptionSerializer, SummarySerializer, ErrorSerial
 logger = logging.getLogger(__name__)
 
 
+class TherapistSessionFilter(filters.FilterSet):
+    date = filters.DateFilter(field_name="created_at", lookup_expr='date', help_text="Filter sessions by specific date")
+    status = filters.CharFilter(lookup_expr='iexact', help_text="Filter sessions by status")
+
+    class Meta:
+        model = TherapistSession
+        fields = ['date', 'status']
+
+
 class TherapistSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TherapistSessionSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     parser_classes = (MultiPartParser, FormParser)
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = TherapistSessionFilter
+    search_fields = ['session_name']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
 
     def get_queryset(self):
         # This ensures that users only see their own sessions
         return TherapistSession.objects.filter(therapist=self.request.user)
-
-    import logging
-
-    # Configure logging
-    logger = logging.getLogger(__name__)
 
     def perform_create(self, serializer):
         try:
@@ -87,13 +98,9 @@ class SessionDataView(APIView):
             return Response({'success': False, 'errors': error_serializer.errors, 'message': 'Invalid data'},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
-            transcription_data = {
-                'session': session_id,
-                'transcription_text_file': request.FILES.get('transcription_file')
-            }
-            summary_data = {
-                'session': session_id, 'summary_text_file': request.FILES.get('summary_file')
-            }
+            transcription_data = {'session': session_id,
+                'transcription_text_file': request.FILES.get('transcription_file')}
+            summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
             transcription_serializer = TranscriptionSerializer(data=transcription_data)
             summary_serializer = SummarySerializer(data=summary_data)
 

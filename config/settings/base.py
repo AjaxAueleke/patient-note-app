@@ -67,7 +67,7 @@ DJANGO_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.con
                "django.contrib.admin", "django.forms", ]
 THIRD_PARTY_APPS = ["crispy_forms", "crispy_bootstrap5", "allauth", "allauth.account", "allauth.mfa",
                     "allauth.socialaccount", "rest_framework", "rest_framework.authtoken", "corsheaders",
-                    "drf_spectacular", ]
+                    "drf_spectacular", "django_filters"]
 
 LOCAL_APPS = ["pulse_ai.users", "pulse_ai.therapist_session", ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
