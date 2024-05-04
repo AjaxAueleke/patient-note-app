@@ -86,6 +86,8 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Audio file is too large ( > 50MB ).")
         mime = magic.Magic(mime=True)
         mime_type = mime.from_buffer(value.read(2048))
+        print("MIME TYPE:", mime_type)
+
         if not mime_type.startswith('audio'):
             raise serializers.ValidationError('This file is not an audio file.')
         value.seek(0)

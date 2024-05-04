@@ -111,3 +111,9 @@ e
 -pulse_ai/therapist_session/api/permissions.py,7/8/78ca03b00f7158f3f599397081f4f3cf0fd818e4
 Q
 !pulse_ai/users/api/permissions.py,d/b/dbe406b9c0439dd7bbe2d809fcfef012cf735603
+p
+@.venv/lib/python3.12/site-packages/rest_framework/serializers.py,a/a/aaef7cbc86a6bade7bcb59920fd9365d6ada35d8
+l
+<.venv/lib/python3.12/site-packages/rest_framework/request.py,3/5/3544dffe663f8283c8df62cee13358b3ae430fa5
+p
+@.venv/lib/python3.12/site-packages/rest_framework/permissions.py,b/a/bac488077d6c8da26bba067b2411c913bfc94b8c
