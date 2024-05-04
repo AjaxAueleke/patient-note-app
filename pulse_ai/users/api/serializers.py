@@ -200,7 +200,7 @@ class EmailVerificationSerializer(serializers.Serializer):
 
 class VerifyEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    verification_code = serializers.CharField(max_length=6)
+    verification_code = serializers.CharField(max_length=6, min_length=6, required=True)
 
     def validate(self, data):
         try:
@@ -209,7 +209,7 @@ class VerifyEmailSerializer(serializers.Serializer):
                 raise serializers.ValidationError("This email is already verified.")
             if not user.verification_code or user.verification_code != data['verification_code']:
                 raise serializers.ValidationError("Invalid verification code.")
-            if user.code_sent_at + timedelta(minutes=10) < timezone.now():  # assuming code expires after 10 minutes
+            if user.code_sent_at + timedelta(minutes=10) < timezone.now():
                 raise serializers.ValidationError("Verification code expired.")
             return data
         except User.DoesNotExist:

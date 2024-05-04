@@ -1,4 +1,4 @@
-from random import random
+from random import randint
 
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.core.mail import send_mail
@@ -133,12 +133,13 @@ class UpdateProfilePictureView(APIView):
 
 class SendVerificationEmailView(APIView):
     throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
+    serializer_class = EmailVerificationSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = EmailVerificationSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
-            verification_code = "".join([str(random.randint(0, 9)) for _ in range(6)])  # Generate a 6-digit code
+            verification_code = "".join([str(randint(0, 9)) for _ in range(6)])  # Generate a 6-digit code
             subject = 'Verify Your Email Address'
             message = f'Your verification code is: {verification_code}'
             email_from = 'noreply@example.com'
@@ -153,7 +154,9 @@ class SendVerificationEmailView(APIView):
                              "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class VerifyEmailView(APIView):
+    serializer_class = VerifyEmailSerializer
     def post(self, request, *args, **kwargs):
         serializer = VerifyEmailSerializer(data=request.data)
         if serializer.is_valid():

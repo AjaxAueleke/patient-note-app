@@ -8,7 +8,7 @@ from drf_spectacular.views import SpectacularSwaggerView
 
 from pulse_ai.therapist_session.api.views import SessionDataView
 from pulse_ai.users.api.views import UserLoginView, RegisterView, ChangePasswordView, UpdateProfilePictureView, \
-    SendVerificationEmailView
+    SendVerificationEmailView, VerifyEmailView
 
 urlpatterns = []
 
@@ -19,7 +19,7 @@ urlpatterns += [
     path("users/register", RegisterView.as_view()), path("users/login", UserLoginView.as_view()),
     path("users/password", ChangePasswordView.as_view()), path("users/picture", UpdateProfilePictureView.as_view()),
     path("users/send-verification-email", SendVerificationEmailView.as_view(), name='send-verification-email'),
-    path("users/verify-email", SendVerificationEmailView.as_view(), name='verify-email'),
+    path("users/verify-email", VerifyEmailView.as_view(), name='verify-email'),
     path("session-data/<int:session_id>/", SessionDataView.as_view(), name="session-data"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs", ),
 ]
