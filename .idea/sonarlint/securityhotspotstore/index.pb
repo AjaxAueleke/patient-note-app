@@ -103,7 +103,7 @@ G
 pulse_ai/users/admin.py,6/f/6fda098a560cd1235d9d4947267df12633712b02
 F
 pulse_ai/users/apps.py,7/2/72c720ea09b132a33bd8d3771f0e9a9bf33b8fd1
-E
-pulse_ai/throttles.py,9/e/9eafa406452eff73af6d5c1e7eb82f6f2547223b
 K
 pulse_ai/users/throttles.py,3/f/3f23541cc8f0af0c00e1825b7be9630250b82886
+e
+5.venv/lib/python3.12/site-packages/environ/environ.py,3/a/3aa1d3642a33cdf36c22f7eb7f31a292cb00d8f6
