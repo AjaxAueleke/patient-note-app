@@ -105,12 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.Us
 # MIDDLEWARE
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
-MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware",
-              "django.middleware.security.SecurityMiddleware",
-              "corsheaders.middleware.CorsMiddleware",
-              "django.contrib.sessions.middleware.SessionMiddleware",
-              "django.middleware.locale.LocaleMiddleware",
-              "django.middleware.common.CommonMiddleware",
+MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware", "django.middleware.security.SecurityMiddleware",
+              "corsheaders.middleware.CorsMiddleware", "django.contrib.sessions.middleware.SessionMiddleware",
+              "django.middleware.locale.LocaleMiddleware", "django.middleware.common.CommonMiddleware",
               # "django.middleware.csrf.CsrfViewMiddleware",
               "django.contrib.auth.middleware.AuthenticationMiddleware",
               "django.contrib.messages.middleware.MessageMiddleware",
@@ -293,3 +290,10 @@ SQS_URL = env("SQS_URL", default=None)
 THERAPIST_SESSION_POST_API_KEY = env("THERAPIST_SESSION_POST_API_KEY", default=None)
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 100
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('SENDGRID_SMTP_SERVER', default='smtp.sendgrid.net')
+EMAIL_HOST_USER = env('SENDGRID_SMTP_USERNAME', default='apikey')
+EMAIL_HOST_PASSWORD = env('SENDGRID_SMTP_PASSWORD', default=None)
+EMAIL_PORT = int(env('SMTP_PORT', default=587))
+EMAIL_USE_TLS = True

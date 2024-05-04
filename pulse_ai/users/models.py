@@ -1,7 +1,10 @@
+from datetime import timezone
 from typing import ClassVar
+
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.db.models import CharField
 from django.db.models import EmailField
 from django.db.models import ImageField
@@ -27,7 +30,11 @@ class User(AbstractUser):
     email = EmailField(_("email address"), unique=True)
     username = None  # type: ignore[assignment]
     profile_picture = ImageField(_("Profile Picture"), upload_to='profile_pics/', blank=True, null=True)
-
+    is_deleted = models.BooleanField(default=False, editable=False)
+    deleted_on = models.DateTimeField(null=True, blank=True)
+    email_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    code_sent_at = models.DateTimeField(blank=True, null=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -41,6 +48,12 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"pk": self.id})
+
+    def delete(self, *args, **kwargs):
+        """ Soft delete the user by setting is_deleted flag instead of deleting from db. """
+        self.is_deleted = True
+        self.deleted_on = timezone.now()
+        self.save()
 
     @extend_schema_field(str)
     def get_profile_picture_url(self):

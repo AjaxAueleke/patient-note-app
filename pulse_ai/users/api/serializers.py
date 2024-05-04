@@ -68,8 +68,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         except DjangoValidationError as e:
             raise serializers.ValidationError('Invalid email format.') from e
 
-        if User.objects.filter(email=value).exists():
+        if User.objects.filter(email=value, is_deleted=False).exists():
             raise serializers.ValidationError("A user with that email already exists.")
+
+        if User.objects.filter(email=value, is_deleted=True).exists():
+            raise serializers.ValidationError("This account was deleted.")
 
         return value
 
@@ -102,7 +105,7 @@ class UserLoginSerializer(TokenObtainPairSerializer):
     def validate(self, data):
         print(f"data in validate => {data}")
         try:
-            user = User.objects.get(email=data["email"])
+            user = User.objects.get(email=data["email"], is_deleted=False)
             print(f"user in validate UserLoginSerializer => {user}")
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed("User does not exist")
