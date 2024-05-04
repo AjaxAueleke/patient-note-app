@@ -68,6 +68,7 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'created_at',
+            'session_name',
             'session_audio',
             'session_audio_url',
             'errors',

@@ -107,3 +107,7 @@ K
 pulse_ai/users/throttles.py,3/f/3f23541cc8f0af0c00e1825b7be9630250b82886
 e
 5.venv/lib/python3.12/site-packages/environ/environ.py,3/a/3aa1d3642a33cdf36c22f7eb7f31a292cb00d8f6
+]
+-pulse_ai/therapist_session/api/permissions.py,7/8/78ca03b00f7158f3f599397081f4f3cf0fd818e4
+Q
+!pulse_ai/users/api/permissions.py,d/b/dbe406b9c0439dd7bbe2d809fcfef012cf735603

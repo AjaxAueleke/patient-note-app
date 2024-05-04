@@ -46,7 +46,7 @@ class UserSerializer(serializers.ModelSerializer[User]):
 
     class Meta:
         model = User
-        fields = ["email", "last_login", "name", "profile_picture_url"]
+        fields = ["email", "last_login", "name", "profile_picture_url", "email_verified"]
 
     def get_profile_picture_url(self, obj):
         return obj.get_profile_picture_url()

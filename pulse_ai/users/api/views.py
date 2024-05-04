@@ -15,6 +15,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from pulse_ai.users.api.permissions import IsNotDeleted, IsEmailVerified
 from pulse_ai.users.api.serializers import UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer, \
     UserProfilePictureSerializer, EmailVerificationSerializer, UserSerializer, VerifyEmailSerializer
 from pulse_ai.users.models import User
@@ -25,7 +26,7 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "pk"
-    permission_classes = [IsAuthenticated]  # Ensures that the user is authenticated
+    permission_classes = [IsAuthenticated, IsNotDeleted]  # Ensures that the user is authenticated
 
     def get_queryset(self, *args, **kwargs):
         # Ensure that the user can only access their own data
@@ -39,6 +40,7 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
         return Response({"success": True, "message": "User account has been successfully deleted."},
                         status=status.HTTP_200_OK)
 
+
     @action(detail=False)
     def me(self, request):
         serializer = UserSerializer(request.user, context={"request": request})
@@ -47,7 +49,7 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
 
 class ChangePasswordView(APIView):
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotDeleted]
 
     def patch(self, request):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
@@ -113,8 +115,9 @@ class UserLoginView(TokenObtainPairView):
 
 
 class UpdateProfilePictureView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotDeleted,]
     parser_classes = [MultiPartParser, FormParser]
+
 
     def patch(self, request, *args, **kwargs):
         serializer = UserProfilePictureSerializer(instance=request.user, data=request.data,
@@ -135,7 +138,7 @@ class UpdateProfilePictureView(APIView):
 class SendVerificationEmailView(APIView):
     throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
     serializer_class = EmailVerificationSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsNotDeleted)
 
     def post(self, request, *args, **kwargs):
         serializer = EmailVerificationSerializer(data=request.data)
@@ -149,9 +152,9 @@ class SendVerificationEmailView(APIView):
             message = f'Your verification code is: {verification_code}'
             email_from = 'noreply@example.com'
             recipient_list = [email]
-
             send_mail(subject, message, email_from, recipient_list)
             user.code_sent_at = timezone.now()
+            user.save()
             return Response({"success": True, "message": "Verification email sent successfully."},
                             status=status.HTTP_200_OK)
         else:
@@ -160,6 +163,7 @@ class SendVerificationEmailView(APIView):
 
 
 class VerifyEmailView(APIView):
+    permission_classes = (IsAuthenticated, IsNotDeleted)
     serializer_class = VerifyEmailSerializer
 
     def post(self, request, *args, **kwargs):
