@@ -2,6 +2,7 @@ from random import randint
 
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.core.mail import send_mail
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import RetrieveModelMixin, DestroyModelMixin
@@ -134,19 +135,23 @@ class UpdateProfilePictureView(APIView):
 class SendVerificationEmailView(APIView):
     throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
     serializer_class = EmailVerificationSerializer
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         serializer = EmailVerificationSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
+            user = request.user
             verification_code = "".join([str(randint(0, 9)) for _ in range(6)])  # Generate a 6-digit code
+            user.verification_code = verification_code
+
             subject = 'Verify Your Email Address'
             message = f'Your verification code is: {verification_code}'
             email_from = 'noreply@example.com'
             recipient_list = [email]
 
             send_mail(subject, message, email_from, recipient_list)
-
+            user.code_sent_at = timezone.now()
             return Response({"success": True, "message": "Verification email sent successfully."},
                             status=status.HTTP_200_OK)
         else:
@@ -154,16 +159,16 @@ class SendVerificationEmailView(APIView):
                              "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class VerifyEmailView(APIView):
     serializer_class = VerifyEmailSerializer
+
     def post(self, request, *args, **kwargs):
         serializer = VerifyEmailSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             user = User.objects.get(email=email)
             user.email_verified = True
-            user.verification_code = None  # Optionally clear the code after verification
+            user.verification_code = None
             user.save()
             return Response({"success": True, "message": "Email verified successfully."}, status=status.HTTP_200_OK)
         else:

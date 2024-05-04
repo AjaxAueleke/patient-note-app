@@ -1,6 +1,4 @@
-from datetime import timezone
 from typing import ClassVar
-
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -9,6 +7,7 @@ from django.db.models import CharField
 from django.db.models import EmailField
 from django.db.models import ImageField
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 

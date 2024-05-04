@@ -1,4 +1,4 @@
-from datetime import timezone, timedelta
+from datetime import timedelta
 
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import EmailValidator
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
