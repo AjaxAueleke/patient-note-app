@@ -102,6 +102,7 @@ pytest==8.1.1
 pytest-django==4.8.0
 pytest-sugar==1.0.0
 python-dateutil==2.9.0.post0
+python-http-client==3.3.7
 python-magic==0.4.27
 python-slugify==8.0.4
 python3-openid==3.2.0
@@ -115,6 +116,8 @@ requests-oauthlib==2.0.0
 rpds-py==0.18.0
 ruff==0.3.5
 s3transfer==0.10.1
+sendgrid==3.6.5
+sendgrid-django==4.2.0
 setuptools==69.5.1
 six==1.16.0
 snowballstemmer==2.2.0
