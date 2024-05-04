@@ -1,3 +1,5 @@
+from datetime import timezone, timedelta
+
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -7,6 +9,7 @@ from django.db import IntegrityError
 from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from rest_framework.throttling import UserRateThrottle
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from pulse_ai.users.models import User
@@ -168,3 +171,46 @@ class UserProfilePictureSerializer(serializers.ModelSerializer):
         user.profile_picture = self.validated_data.get('profile_picture', user.profile_picture)
         user.save()
         return user
+
+
+class BurstRateThrottle(UserRateThrottle):
+    scope = 'burst'
+
+
+class SustainedRateThrottle(UserRateThrottle):
+    scope = 'sustained'
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        print(f"data in validate => {value}")
+        try:
+            user = User.objects.get(email=value, is_deleted=False)
+            print(f"user in validate UserLoginSerializer => {user}")
+            if user.email_verified:
+                raise serializers.ValidationError("Email is already verified.")
+            if user.code_sent_at and (timezone.now() - user.code_sent_at) < timezone.timedelta(minutes=2):
+                raise serializers.ValidationError("You must wait at least two minutes before requesting a new code")
+        except User.DoesNotExist:
+            raise exceptions.AuthenticationFailed("User does not exist")
+        return value
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    verification_code = serializers.CharField(max_length=6)
+
+    def validate(self, data):
+        try:
+            user = User.objects.get(email=data['email'])
+            if user.email_verified:
+                raise serializers.ValidationError("This email is already verified.")
+            if not user.verification_code or user.verification_code != data['verification_code']:
+                raise serializers.ValidationError("Invalid verification code.")
+            if user.code_sent_at + timedelta(minutes=10) < timezone.now():  # assuming code expires after 10 minutes
+                raise serializers.ValidationError("Verification code expired.")
+            return data
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")

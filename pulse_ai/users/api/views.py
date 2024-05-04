@@ -1,4 +1,7 @@
+from random import random
+
 from django.contrib.auth import authenticate, update_session_auth_hash
+from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import RetrieveModelMixin, DestroyModelMixin
@@ -11,10 +14,10 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from pulse_ai.users.api.serializers import UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer, \
+    UserProfilePictureSerializer, EmailVerificationSerializer, UserSerializer, VerifyEmailSerializer
 from pulse_ai.users.models import User
-from .serializers import UserLoginSerializer, ChangePasswordSerializer, UserProfilePictureSerializer
-from .serializers import UserRegistrationSerializer
-from .serializers import UserSerializer
+from pulse_ai.users.throttles import BurstRateThrottle, SustainedRateThrottle
 
 
 class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
@@ -126,3 +129,39 @@ class UpdateProfilePictureView(APIView):
             return Response(
                 {"success": False, "message": "Failed to update profile picture", "errors": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendVerificationEmailView(APIView):
+    throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailVerificationSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            verification_code = "".join([str(random.randint(0, 9)) for _ in range(6)])  # Generate a 6-digit code
+            subject = 'Verify Your Email Address'
+            message = f'Your verification code is: {verification_code}'
+            email_from = 'noreply@example.com'
+            recipient_list = [email]
+
+            send_mail(subject, message, email_from, recipient_list)
+
+            return Response({"success": True, "message": "Verification email sent successfully."},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({"success": False, "message": "There was an issue sending the verification email",
+                             "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyEmailView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = VerifyEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            user = User.objects.get(email=email)
+            user.email_verified = True
+            user.verification_code = None  # Optionally clear the code after verification
+            user.save()
+            return Response({"success": True, "message": "Email verified successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
