@@ -189,7 +189,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         print(f"data in validate => {value}")
         try:
             user = User.objects.get(email=value, is_deleted=False)
-            print(f"user in validate UserLoginSerializer => {user}")
+            print(f"user in validate email email verification serializer=> {user}")
             if user.email_verified:
                 raise serializers.ValidationError("Email is already verified.")
             if user.code_sent_at and (timezone.now() - user.code_sent_at) < timezone.timedelta(minutes=2):

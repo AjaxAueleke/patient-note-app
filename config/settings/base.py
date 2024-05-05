@@ -65,9 +65,11 @@ DJANGO_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.con
                "django.contrib.messages", "django.contrib.staticfiles",
                # "django.contrib.humanize", # Handy template tags
                "django.contrib.admin", "django.forms", ]
-THIRD_PARTY_APPS = ["crispy_forms", "crispy_bootstrap5", "allauth", "allauth.account", "allauth.mfa",
+THIRD_PARTY_APPS = [
+    "crispy_forms", "crispy_bootstrap5", "allauth", "allauth.account", "allauth.mfa",
                     "allauth.socialaccount", "rest_framework", "rest_framework.authtoken", "corsheaders",
-                    "drf_spectacular", "django_filters"]
+                    "drf_spectacular", "django_filters",
+                    ]
 
 LOCAL_APPS = ["pulse_ai.users", "pulse_ai.therapist_session", ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -298,9 +300,9 @@ THERAPIST_SESSION_POST_API_KEY = env("THERAPIST_SESSION_POST_API_KEY", default=N
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 100
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('SENDGRID_SMTP_SERVER', default='smtp.sendgrid.net')
 EMAIL_HOST_USER = env('SENDGRID_SMTP_USERNAME', default='apikey')
 EMAIL_HOST_PASSWORD = env('SENDGRID_SMTP_PASSWORD', default=None)
 EMAIL_PORT = int(env('SMTP_PORT', default=587))
 EMAIL_USE_TLS = True
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default=None)

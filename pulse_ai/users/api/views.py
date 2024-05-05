@@ -1,7 +1,7 @@
 from random import randint
 
+from django.conf import settings
 from django.contrib.auth import authenticate, update_session_auth_hash
-from django.core.mail import send_mail
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
@@ -14,8 +14,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
-from pulse_ai.users.api.permissions import IsNotDeleted, IsEmailVerified
+from pulse_ai.users.api.permissions import IsNotDeleted
 from pulse_ai.users.api.serializers import UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer, \
     UserProfilePictureSerializer, EmailVerificationSerializer, UserSerializer, VerifyEmailSerializer
 from pulse_ai.users.models import User
@@ -152,9 +154,24 @@ class SendVerificationEmailView(APIView):
             message = f'Your verification code is: {verification_code}'
             email_from = 'noreply@example.com'
             recipient_list = [email]
-            send_mail(subject, message, email_from, recipient_list)
-            user.code_sent_at = timezone.now()
-            user.save()
+            # send_mail(subject, message, email_from, recipient_list)
+            message = Mail(
+                from_email='ahmed.jamil7410@gmail.com',
+                to_emails=recipient_list,
+                subject=subject,
+                html_content='<strong>{}</strong>'.format(message),)
+            try:
+                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+                response = sg.send(message)
+                print(response.status_code)
+                print(response.body)
+                print(response.headers)
+                user.code_sent_at = timezone.now()
+                user.save()
+            except Exception as e:
+                print(e)
+                return Response({"success": False, "message": "There was an issue sending the verification email",
+                                 "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"success": True, "message": "Verification email sent successfully."},
                             status=status.HTTP_200_OK)
         else:
