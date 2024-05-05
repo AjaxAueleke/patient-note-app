@@ -117,3 +117,9 @@ l
 <.venv/lib/python3.12/site-packages/rest_framework/request.py,3/5/3544dffe663f8283c8df62cee13358b3ae430fa5
 p
 @.venv/lib/python3.12/site-packages/rest_framework/permissions.py,b/a/bac488077d6c8da26bba067b2411c913bfc94b8c
+p
+@.venv/lib/python3.12/site-packages/django/dispatch/dispatcher.py,4/9/492235f09625d62860646833f8d774d2c7ecaaa5
+e
+5.venv/lib/python3.12/site-packages/sendgrid/models.py,2/3/237f766eeec87c682f1cda1621a08ddcdb60b72b
+r
+B.venv/lib/python3.12/site-packages/django/contrib/auth/__init__.py,c/a/ca9251ff5a1dd85b25acd3da91b6fd36bbdd4cb2
