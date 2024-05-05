@@ -14,8 +14,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid import SendGridAPIClient, Email
+from sendgrid.helpers.mail import Mail, Content
 
 from pulse_ai.users.api.permissions import IsNotDeleted
 from pulse_ai.users.api.serializers import UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer, \
@@ -137,6 +137,7 @@ class UpdateProfilePictureView(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class SendVerificationEmailView(APIView):
     throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
     serializer_class = EmailVerificationSerializer
@@ -149,20 +150,16 @@ class SendVerificationEmailView(APIView):
             user = request.user
             verification_code = "".join([str(randint(0, 9)) for _ in range(6)])  # Generate a 6-digit code
             user.verification_code = verification_code
-
+            from_email = Email("ahmed.jamil7410@gmail.com")
+            to_email = Email(email)
             subject = 'Verify Your Email Address'
             message = f'Your verification code is: {verification_code}'
-            email_from = 'noreply@example.com'
-            recipient_list = [email]
-            # send_mail(subject, message, email_from, recipient_list)
-            message = Mail(
-                from_email='ahmed.jamil7410@gmail.com',
-                to_emails=recipient_list,
-                subject=subject,
-                html_content='<strong>{}</strong>'.format(message),)
+            content = Content("text/plain", message)
+
             try:
-                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-                response = sg.send(message)
+                sg = SendGridAPIClient(apikey=settings.SENDGRID_API_KEY)
+                mail_message = Mail(from_email, subject, to_email, content)
+                response = sg.client.mail.send.post(request_body=mail_message.get())
                 print(response.status_code)
                 print(response.body)
                 print(response.headers)
