@@ -28,6 +28,7 @@ cssbeautifier==1.15.1
 decorator==5.1.1
 defusedxml==0.7.1
 distlib==0.3.8
+dj-rest-auth==6.0.0
 Django==4.2.11
 django-allauth==0.61.1
 django-anymail==10.3
