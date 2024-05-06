@@ -4,7 +4,6 @@ from django.db import models
 from drf_spectacular.utils import extend_schema_field
 
 from pulse_ai.therapist_session.s3_client import S3Client
-from pulse_ai.therapist_session.validators import validate_audio_mime_type
 from pulse_ai.users.models import User
 
 
@@ -13,7 +12,7 @@ class TherapistSession(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', blank=False, null=False)
     therapist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='therapist_sessions')
     session_name = models.CharField(max_length=50, blank=False, null=False, validators=[MinLengthValidator(5)])
-    session_audio = models.FileField(upload_to='sessions/', validators=[validate_audio_mime_type])
+    session_audio = models.FileField(upload_to='sessions/')
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
