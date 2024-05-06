@@ -15,6 +15,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from pulse_ai.therapist_session.models import TherapistSession
+
+from pulse_ai.therapist_session.api.pagination import StandardResultsSetPagination
 from .permissions import IsOwnerOrReadOnly
 from .serializers import TherapistSessionSerializer
 from .serializers import TranscriptionSerializer, SummarySerializer, ErrorSerializer
@@ -40,6 +42,7 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     search_fields = ['session_name']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         # This ensures that users only see their own sessions
