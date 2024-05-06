@@ -90,5 +90,5 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
 
         # if not mime_type.startswith('audio'):
         #     raise serializers.ValidationError('This file is not an audio file.')
-        value.seek(0)
+        # value.seek(0)
         return value
