@@ -5,6 +5,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # pulse_ai/
@@ -66,15 +67,25 @@ DJANGO_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.con
                # "django.contrib.humanize", # Handy template tags
                "django.contrib.admin", "django.forms", ]
 THIRD_PARTY_APPS = [
-    "crispy_forms", "crispy_bootstrap5", "allauth", "allauth.account", "allauth.mfa",
-                    "allauth.socialaccount", "rest_framework", "rest_framework.authtoken", "corsheaders",
-                    "drf_spectacular", "django_filters",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "allauth",
+    "allauth.account",
+    "allauth.mfa",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "drf_spectacular",
+    "django_filters",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
                     ]
 
 LOCAL_APPS = ["pulse_ai.users", "pulse_ai.therapist_session", ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
@@ -306,3 +317,37 @@ EMAIL_HOST_PASSWORD = env('SENDGRID_SMTP_PASSWORD', default=None)
 EMAIL_PORT = int(env('SMTP_PORT', default=587))
 EMAIL_USE_TLS = True
 SENDGRID_API_KEY = env('SENDGRID_API_KEY', default=None)
+
+
+GOOGLE_OAUTH_CLIENT_ID= env('GOOGLE_OAUTH_CLIENT_ID', default=None)
+GOOGLE_OAUTH_CLIENT_SECRET= env('GOOGLE_OAUTH_CLIENT_SECRET', default=None)
+if GOOGLE_OAUTH_CLIENT_ID is None or GOOGLE_OAUTH_CLIENT_SECRET is None:
+    raise ImproperlyConfigured("GOOGLE AUTH SECRETS NOT PROVIDED")
+
+SITE_ID = 1
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': GOOGLE_OAUTH_CLIENT_ID,
+            'secret': GOOGLE_OAUTH_CLIENT_SECRET,
+            'key': ''
+        },
+        'FETCH_USERINFO': True,
+    }
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'pulse_ai.users.api.serializers.UserRegistrationSerializer',
+}
+
+REST_USE_JWT = True
+REST_AUTH = {
+    'USE_JWT': True,
+}
