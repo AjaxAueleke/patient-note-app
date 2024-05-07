@@ -1,16 +1,12 @@
 from random import randint
 
-from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.internal import jwtkit
-from allauth.socialaccount.providers.google.provider import GoogleProvider
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter, AUTHORIZE_URL, ACCESS_TOKEN_URL, \
-    IDENTITY_URL, ID_TOKEN_ISSUER, FETCH_USERINFO, CERTS_URL
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client, OAuth2Error
-from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
-from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.google.views import ID_TOKEN_ISSUER, CERTS_URL
 from django.conf import settings
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.utils import timezone
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import RetrieveModelMixin, DestroyModelMixin
@@ -33,7 +29,7 @@ from pulse_ai.users.api.serializers import (
     UserProfilePictureSerializer,
     EmailVerificationSerializer,
     UserSerializer,
-    VerifyEmailSerializer,
+    VerifyEmailSerializer, GoogleAuthSerializer,
 )
 from pulse_ai.users.models import User
 from pulse_ai.users.throttles import BurstRateThrottle, SustainedRateThrottle
@@ -278,65 +274,80 @@ class VerifyEmailView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+
 def _verify_and_decode(app, credential, verify_signature=True):
     return jwtkit.verify_and_decode(
         credential=credential,
         keys_url=CERTS_URL,
         issuer=ID_TOKEN_ISSUER,
-        audience=app.client_id,
+        audience=settings.GOOGLE_OAUTH_CLIENT_ID,
         lookup_kid=jwtkit.lookup_kid_pem_x509_certificate,
         verify_signature=verify_signature,
     )
 
-class GoogleOAuth2Adapter(OAuth2Adapter):
-    provider_id = GoogleProvider.id
-    access_token_url = ACCESS_TOKEN_URL
-    authorize_url = AUTHORIZE_URL
-    id_token_issuer = ID_TOKEN_ISSUER
-    identity_url = IDENTITY_URL
-    fetch_userinfo = FETCH_USERINFO
 
-    def complete_login(self, request, app, token, response, **kwargs):
-        data = None
-        id_token = response
-        if id_token:
-            data = self._decode_id_token(app, id_token)
-            if self.fetch_userinfo and "picture" not in data:
-                info = self._fetch_user_info(token.token)
-                picture = info.get("picture")
-                if picture:
-                    data["picture"] = picture
+def exchange_code_for_token(code, redirect_uri):
+    url = 'https://oauth2.googleapis.com/token'
+    payload = {
+        'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
+        'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        'code': code,
+        'grant_type': 'refresh_token',
+        'redirect_uri': redirect_uri
+    }
+    response = requests.post(url, data=payload)
+    response_data = response.json()
+
+    # Now you might want to validate the ID token as shown in previous examples
+    return response_data
+
+
+class GoogleAuthAPIView(APIView):
+    REDIRECT_URI = 'http://127.0.0.1:8000/accounts/google/login/callback/'
+    serializer_class = GoogleAuthSerializer
+
+    def post(self, request, *args, **kwargs):
+        auth_serializer = GoogleAuthSerializer(data=request.data)
+        if auth_serializer.is_valid():
+            token = auth_serializer.validated_data['id_token']
+            try:
+                # Specify the CLIENT_ID of the app that accesses the backend:
+                idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID)
+
+                # Or, if multiple clients access the backend server:
+                # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+                # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+                #     raise ValueError('Could not verify audience.')
+
+                # If the request specified a Google Workspace domain
+                # if idinfo['hd'] != DOMAIN_NAME:
+                #     raise ValueError('Wrong domain name.')
+
+                # ID token is valid. Get the user's Google Account ID from the decoded token.
+                # userid = idinfo['sub']
+                email = idinfo['email']
+                name = idinfo['name']
+                user = User.objects.filter(email=email, is_deleted=False, google_auth=True).first()
+                if not user:
+                    user = User.objects.create(email=email, is_deleted=False,name=name, google_auth=True, is_active=True, email_verified=True)
+
+                response_data = UserLoginSerializer.login(user, request)
+                token = RefreshToken.for_user(user)
+                response_data["refresh"] = str(token)
+                response_data["access"] = str(token.access_token)
+                response_data["success"] = True
+                response_data["message"] = "Logged in successfully."
+
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except ValueError:
+                return Response({
+                    'success': False,
+                    'message': "Can't login through google"
+                })
         else:
-            data = self._fetch_user_info(token.token)
-        login = self.get_provider().sociallogin_from_response(request, data)
-        return login
-
-    def _decode_id_token(self, app, id_token):
-        """
-        If the token was received by direct communication protected by
-        TLS between this library and Google, we are allowed to skip checking the
-        token signature according to the OpenID Connect Core 1.0 specification.
-
-        https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-        """
-        verify_signature = not self.did_fetch_access_token
-        return _verify_and_decode(app, id_token, verify_signature=verify_signature)
-
-    def _fetch_user_info(self, access_token):
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.identity_url,
-                headers={"Authorization": "Bearer {}".format(access_token)},
-            )
-        )
-        if not resp.ok:
-            raise OAuth2Error("Request to user info failed")
-        return resp.json()
-
-
-class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
-    client_class = OAuth2Client
+            return Response({
+                'success': False,
+                'errors': auth_serializer.errors,
+                'message': "Can't login through google"
+            })

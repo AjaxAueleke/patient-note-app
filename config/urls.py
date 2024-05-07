@@ -7,7 +7,7 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from pulse_ai.therapist_session.api.views import SessionDataView
 from pulse_ai.users.api.views import UserLoginView, RegisterView, ChangePasswordView, UpdateProfilePictureView, \
-    SendVerificationEmailView, VerifyEmailView, GoogleLogin
+    SendVerificationEmailView, VerifyEmailView, GoogleAuthAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -19,7 +19,7 @@ urlpatterns = []
 urlpatterns += [
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('users/google-auth', GoogleLogin.as_view(), name='google-auth'),
+    path('users/google-auth', GoogleAuthAPIView.as_view(), name='google-auth'),
     path('auth/social/', include('allauth.socialaccount.urls')),
     path("accounts/", include("allauth.urls")),
     path("api/", include("config.api_router")),

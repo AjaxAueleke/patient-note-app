@@ -215,3 +215,6 @@ class VerifyEmailSerializer(serializers.Serializer):
             return data
         except User.DoesNotExist:
             raise serializers.ValidationError("User not found.")
+
+class GoogleAuthSerializer(serializers.Serializer):
+    id_token = serializers.CharField(required=True, min_length=10)
