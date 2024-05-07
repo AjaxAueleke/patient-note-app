@@ -34,6 +34,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
     code_sent_at = models.DateTimeField(blank=True, null=True)
+    google_auth = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
