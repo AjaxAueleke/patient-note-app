@@ -125,3 +125,5 @@ r
 B.venv/lib/python3.12/site-packages/django/contrib/auth/__init__.py,c/a/ca9251ff5a1dd85b25acd3da91b6fd36bbdd4cb2
 \
 ,pulse_ai/therapist_session/api/pagination.py,b/b/bb62e6640be3fb502281c670ec468b1b41c5afa8
+l
+<.venv/lib/python3.12/site-packages/google/oauth2/id_token.py,8/4/84f409a0c6f9c40c7964ccb5bd1f9bc57fd3f2f3

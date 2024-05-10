@@ -109,7 +109,7 @@ class UserLoginSerializer(TokenObtainPairSerializer):
     def validate(self, data):
         print(f"data in validate => {data}")
         try:
-            user = User.objects.get(email=data["email"], is_deleted=False)
+            user = User.objects.get(email=data["email"], is_deleted=False, google_auth=False)
             print(f"user in validate UserLoginSerializer => {user}")
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed("User does not exist")
