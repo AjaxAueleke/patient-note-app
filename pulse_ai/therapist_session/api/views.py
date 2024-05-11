@@ -5,6 +5,7 @@ import boto3
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.http import Http404
 from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework import viewsets, permissions
@@ -14,9 +15,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from pulse_ai.therapist_session.models import TherapistSession
-
 from pulse_ai.therapist_session.api.pagination import StandardResultsSetPagination
+from pulse_ai.therapist_session.models import TherapistSession
 from .permissions import IsOwnerOrReadOnly
 from .serializers import TherapistSessionSerializer
 from .serializers import TranscriptionSerializer, SummarySerializer, ErrorSerializer
@@ -76,6 +76,20 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
 
         print(response)
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(
+                {'success': True, 'message': 'Therapist session deleted successfully'},
+                status=status.HTTP_200_OK
+            )
+        except Http404:
+            return Response({'success': False, 'message': 'Therapist session not found'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'success': False, 'message': 'An unexpected error occurred. Please try again later.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SessionDataView(APIView):
     def post(self, request, session_id):
