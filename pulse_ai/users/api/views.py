@@ -238,7 +238,7 @@ class SendVerificationEmailView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response(
-                {"success": True, "message": "Verification email sent successfully."},
+                {"success": True, "message": "Verification email sent successfully. Please check your email"},
                 status=status.HTTP_200_OK,
             )
         else:
