@@ -212,7 +212,7 @@ class SendVerificationEmailView(APIView):
                 [str(randint(0, 9)) for _ in range(6)]
             )  # Generate a 6-digit code
             user.verification_code = verification_code
-            from_email = Email("ahmed.jamil7410@gmail.com")
+            from_email = Email("team@pulseai.au")
             to_email = Email(email)
             subject = "Verify Your Email Address"
             message = f"Your verification code is: {verification_code}"
