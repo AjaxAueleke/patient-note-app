@@ -28,7 +28,7 @@ class TherapistSessionFilter(filters.FilterSet):
     date = filters.DateFilter(field_name="created_at", lookup_expr='date', help_text="Filter sessions by specific date")
     status = filters.CharFilter(lookup_expr='iexact', help_text="Filter sessions by status")
     patient_name = filters.CharFilter(field_name="patient__name", lookup_expr='icontains', help_text="Filter sessions by patient name")
-    session_name = filters.CharFilter(lookup_expr='icontains', help_text="Filter sessions by session name")
+    session_name = filters.CharFilter(lookup_expr='icontains', help_text="Filter sessions by session name or description")
 
     class Meta:
         model = TherapistSession
@@ -41,10 +41,10 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     parser_classes = (MultiPartParser, FormParser)
     filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
-    filterset_class = TherapistSessionFilter  # Use the updated filterset
-    search_fields = ['session_name', 'patient__name']  # Allow searching on these fields
-    ordering_fields = ['created_at', 'session_name', 'patient__name']  # Ordering options
-    ordering = ['-created_at']
+    filterset_class = TherapistSessionFilter
+    search_fields = ['session_name', 'description', 'patient__name']
+    ordering_fields = ['created_at', 'session_name', 'description', 'patient__name', 'status']  # Added fields for ordering
+    ordering = ['-created_at']  # Default ordering
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):

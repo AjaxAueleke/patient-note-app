@@ -12,11 +12,12 @@ class TherapistSession(models.Model):
     STATUS_CHOICES = (('pending', 'Pending'), ('done', 'Done'), ('failed', 'Failed'),)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', blank=False, null=False)
     therapist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='therapist_sessions')
-    session_name = models.CharField(max_length=50, blank=False, null=False, validators=[MinLengthValidator(5)])
+    session_name = models.CharField(max_length=50, blank=False, null=False)
+    description = models.TextField(null=True, blank=False)  # Add this line if not present
     session_audio = models.FileField(upload_to='sessions/')
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE , related_name='sessions', null=True ,blank=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='sessions', null = False, blank=False)
 
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"
