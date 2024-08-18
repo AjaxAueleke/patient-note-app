@@ -90,7 +90,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         the error is propagated by raising an IntegrityError.
         """
         try:
-            user = User.objects.create(email=validated_data["email"], name=validated_data["name"])
+            user = User.objects.create(email=validated_data["email"].lower(), name=validated_data["name"])
             user.set_password(validated_data["password"])
             user.save()
             return user

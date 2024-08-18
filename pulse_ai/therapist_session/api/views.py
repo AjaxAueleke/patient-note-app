@@ -54,7 +54,13 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             session = serializer.save(therapist=self.request.user)
-            data = {"action": "speech-to-text", "audio_url": session.session_audio.url, "session_id": session.id}
+            data = {
+                "action": "speech-to-text",
+                "audio_url": session.session_audio.url,
+                "session_id": session.id,
+                "therapist_id": self.request.user.id,  # Include therapist ID
+                "patient_id": session.patient.id,  # Include patient ID
+            }
             print("QUEUE DATA: ")
             print(data)
             self._send_queue_message(data)
@@ -78,21 +84,158 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
                                     MessageGroupId='therapist-session-queue')
 
         print(response)
+        
+class RegenerateTranscriptionViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-    def destroy(self, request, *args, **kwargs):
+    def create(self, request, session_id):
         try:
-            instance = self.get_object()
-            self.perform_destroy(instance)
-            return Response(
-                {'success': True, 'message': 'Therapist session deleted successfully'},
-                status=status.HTTP_200_OK
-            )
-        except Http404:
-            return Response({'success': False, 'message': 'Therapist session not found'},
-                            status=status.HTTP_404_NOT_FOUND)
+            # Check if the session belongs to the authenticated therapist
+            session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
+            if not session:
+                return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Get the last transcription for the session
+            transcription = session.transcriptions.last()
+            if not transcription:
+                return Response({'success': False, 'message': 'Transcription not found for this session'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            # Prepare data for SQS message
+            data = {
+                "action": "regenerate-transcription",
+                "audio_url": session.session_audio.url,
+                "session_id": session.id,
+                "therapist_id": self.request.user.id,  # Include therapist ID
+                "patient_id": session.patient.id,  # Include patient ID
+                "regenerate": True
+            }
+            print("QUEUE DATA: ")
+            print(data)
+            self._send_queue_message(data)
+
+            return Response({'success': True, 'message': 'Transcription regeneration request sent'}, status=status.HTTP_200_OK)
         except Exception as e:
+            logger.error(f"Unexpected error during transcription regeneration: {e}")
             return Response({'success': False, 'message': 'An unexpected error occurred. Please try again later.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def _send_queue_message(self, data):
+        queue_url = settings.SQS_URL
+
+        sqs = boto3.client('sqs', aws_access_key_id=settings.FUNCTION_QUEUE_AWS_S3_AWS_ACCESS_KEY_ID,
+                           aws_secret_access_key=settings.FUNCTION_QUEUE_AWS_S3_AWS_SECRET_ACCESS_KEY,
+                           region_name=settings.AWS_REGION)
+        # Send message
+        response = sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
+                                    MessageGroupId='therapist-session-queue')
+
+        print(response)
+
+
+class RegenerateSummaryViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def create(self, request, session_id):
+        try:
+            # Check if the session belongs to the authenticated therapist
+            session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
+            if not session:
+                return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Get the last transcription for the session
+            transcription = session.transcriptions.last()
+            if not transcription:
+                return Response({'success': False, 'message': 'Transcription not found for this session'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            # Fetch the transcription URL
+            transcription_url = transcription.get_transcription_url()
+            if not transcription_url:
+                return Response({'success': False, 'message': 'Failed to fetch transcription URL'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            # Prepare data for SQS message
+            data = {
+                "action": "regenerate-summary",
+                "transcription_url": transcription_url,
+                "session_id": session.id,
+                "therapist_id": self.request.user.id,  # Include therapist ID
+                "patient_id": session.patient.id,  # Include patient ID
+                "regenerate": True
+            }
+            print("QUEUE DATA: ")
+            print(data)
+            self._send_queue_message(data)
+
+            return Response({'success': True, 'message': 'Summary regeneration request sent'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Unexpected error during summary regeneration: {e}")
+            return Response({'success': False, 'message': 'An unexpected error occurred. Please try again later.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def _send_queue_message(self, data):
+        queue_url = settings.SQS_URL
+
+        sqs = boto3.client('sqs', aws_access_key_id=settings.FUNCTION_QUEUE_AWS_S3_AWS_ACCESS_KEY_ID,
+                           aws_secret_access_key=settings.FUNCTION_QUEUE_AWS_S3_AWS_SECRET_ACCESS_KEY,
+                           region_name=settings.AWS_REGION)
+        # Send message
+        response = sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
+                                    MessageGroupId='therapist-session-queue')
+
+        print(response)
+
+
+
+
+# class SessionDataView(APIView):
+#     def post(self, request, session_id):
+#         api_key = request.headers.get('X-API-KEY')
+#         if api_key != settings.THERAPIST_SESSION_POST_API_KEY:
+#             return Response({'success': False, 'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+#         session = TherapistSession.objects.filter(id=session_id).first()
+#         if not session:
+#             return Response({'success': False, 'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+#         error = request.data.get('error', 'false').lower().strip(' ').strip() == 'true'
+
+#         if error:
+#             error_serializer = ErrorSerializer(
+#                 data={'session': session_id, 'error_message': request.data.get('error_message', ''),
+#                       'error_code': request.data.get('error_code', '')})
+#             if error_serializer.is_valid():
+#                 error_serializer.save()
+#                 session.status = 'failed'
+#                 session.save()
+#                 return Response({'success': True, 'data': error_serializer.data}, status=status.HTTP_201_CREATED)
+#             return Response({'success': False, 'errors': error_serializer.errors, 'message': 'Invalid data'},
+#                             status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             transcription_data = {'session': session_id,
+#                 'transcription_text_file': request.FILES.get('transcription_file')}
+#             summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
+#             transcription_serializer = TranscriptionSerializer(data=transcription_data)
+#             summary_serializer = SummarySerializer(data=summary_data)
+
+#             if transcription_serializer.is_valid() and summary_serializer.is_valid():
+#                 transcription_serializer.save()
+#                 summary_serializer.save()
+#                 session.status = 'done'
+#                 session.save()
+#                 return Response({'success': True, 'message': 'Transcription and summary added',
+#                                  'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
+#                                 status=status.HTTP_201_CREATED)
+#             else:
+#                 errors = {}
+#                 if not transcription_serializer.is_valid():
+#                     errors['transcription'] = transcription_serializer.errors
+#                 if not summary_serializer.is_valid():
+#                     errors['summary'] = summary_serializer.errors
+#                 return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
+#                                 status=status.HTTP_400_BAD_REQUEST)
+
 
 class SessionDataView(APIView):
     def post(self, request, session_id):
@@ -104,7 +247,8 @@ class SessionDataView(APIView):
         if not session:
             return Response({'success': False, 'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        error = request.data.get('error', 'false').lower().strip(' ').strip() == 'true'
+        is_regeneration = request.data.get('is_regeneration', 'false').lower().strip() == 'true'
+        error = request.data.get('error', 'false').lower().strip() == 'true'
 
         if error:
             error_serializer = ErrorSerializer(
@@ -119,24 +263,50 @@ class SessionDataView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             transcription_data = {'session': session_id,
-                'transcription_text_file': request.FILES.get('transcription_file')}
+                                   'transcription_text_file': request.FILES.get('transcription_file')}
             summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
-            transcription_serializer = TranscriptionSerializer(data=transcription_data)
-            summary_serializer = SummarySerializer(data=summary_data)
 
-            if transcription_serializer.is_valid() and summary_serializer.is_valid():
-                transcription_serializer.save()
-                summary_serializer.save()
+            if is_regeneration:
+                # Handle regeneration
+                transcription = session.transcriptions.last()
+                summary = session.summaries.last()
+
+                if transcription and transcription_data['transcription_text_file']:
+                    transcription_serializer = TranscriptionSerializer(transcription, data=transcription_data, partial=True)
+                    if transcription_serializer.is_valid():
+                        transcription_serializer.save()
+                        session.transcription_regeneration_count += 1
+
+                if summary and summary_data['summary_text_file']:
+                    summary_serializer = SummarySerializer(summary, data=summary_data, partial=True)
+                    if summary_serializer.is_valid():
+                        summary_serializer.save()
+                        session.summary_regeneration_count += 1
+
                 session.status = 'done'
                 session.save()
-                return Response({'success': True, 'message': 'Transcription and summary added',
-                                 'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
-                                status=status.HTTP_201_CREATED)
+
+                return Response({'success': True, 'message': 'Transcription and/or summary updated after regeneration'},
+                                status=status.HTTP_200_OK)
+
             else:
-                errors = {}
-                if not transcription_serializer.is_valid():
-                    errors['transcription'] = transcription_serializer.errors
-                if not summary_serializer.is_valid():
-                    errors['summary'] = summary_serializer.errors
-                return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                # Handle new transcription and summary
+                transcription_serializer = TranscriptionSerializer(data=transcription_data)
+                summary_serializer = SummarySerializer(data=summary_data)
+
+                if transcription_serializer.is_valid() and summary_serializer.is_valid():
+                    transcription_serializer.save()
+                    summary_serializer.save()
+                    session.status = 'done'
+                    session.save()
+                    return Response({'success': True, 'message': 'Transcription and summary added',
+                                     'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
+                                    status=status.HTTP_201_CREATED)
+                else:
+                    errors = {}
+                    if not transcription_serializer.is_valid():
+                        errors['transcription'] = transcription_serializer.errors
+                    if not summary_serializer.is_valid():
+                        errors['summary'] = summary_serializer.errors
+                    return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
+                                    status=status.HTTP_400_BAD_REQUEST)

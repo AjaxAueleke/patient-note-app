@@ -353,3 +353,6 @@ REST_USE_JWT = True
 REST_AUTH = {
     'USE_JWT': True,
 }
+
+MAX_SUMMARY_REGENERATIONS = 3  # Example limit
+MAX_TRANSCRIPTION_REGENERATIONS = 3  # Example limit
