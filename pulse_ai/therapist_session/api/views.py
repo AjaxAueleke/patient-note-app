@@ -27,10 +27,13 @@ logger = logging.getLogger(__name__)
 class TherapistSessionFilter(filters.FilterSet):
     date = filters.DateFilter(field_name="created_at", lookup_expr='date', help_text="Filter sessions by specific date")
     status = filters.CharFilter(lookup_expr='iexact', help_text="Filter sessions by status")
+    patient_name = filters.CharFilter(field_name="patient__name", lookup_expr='icontains', help_text="Filter sessions by patient name")
+    session_name = filters.CharFilter(lookup_expr='icontains', help_text="Filter sessions by session name")
 
     class Meta:
         model = TherapistSession
-        fields = ['date', 'status']
+        fields = ['date', 'status', 'patient_name', 'session_name']
+
 
 
 class TherapistSessionViewSet(viewsets.ModelViewSet):
@@ -38,9 +41,9 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     parser_classes = (MultiPartParser, FormParser)
     filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
-    filterset_class = TherapistSessionFilter
-    search_fields = ['session_name']
-    ordering_fields = ['created_at']
+    filterset_class = TherapistSessionFilter  # Use the updated filterset
+    search_fields = ['session_name', 'patient__name']  # Allow searching on these fields
+    ordering_fields = ['created_at', 'session_name', 'patient__name']  # Ordering options
     ordering = ['-created_at']
     pagination_class = StandardResultsSetPagination
 

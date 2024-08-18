@@ -32,6 +32,8 @@ urlpatterns += [
     path("users/verify-email", VerifyEmailView.as_view(), name='verify-email'),
     path("session-data/<int:session_id>/", SessionDataView.as_view(), name="session-data"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs", ),
+    path("api/patients/", include("patients.urls")),
+    path("api/favorites/", include("favorites.urls")),
 ]
 
 if settings.DEBUG:

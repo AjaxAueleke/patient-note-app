@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.db import models
 from drf_spectacular.utils import extend_schema_field
+from patients.models import Patient
 
 from pulse_ai.therapist_session.s3_client import S3Client
 from pulse_ai.users.models import User
@@ -15,6 +16,7 @@ class TherapistSession(models.Model):
     session_audio = models.FileField(upload_to='sessions/')
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE , related_name='sessions', null=True ,blank=True)
 
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"
