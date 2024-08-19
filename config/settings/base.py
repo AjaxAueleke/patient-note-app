@@ -52,7 +52,9 @@ DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///pulse_ai", )
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+# print("Start")
+# print(DATABASES)
+# print("End")
 # URLS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
@@ -83,7 +85,7 @@ THIRD_PARTY_APPS = [
     "dj_rest_auth.registration",
                     ]
 
-LOCAL_APPS = ["pulse_ai.users", "pulse_ai.therapist_session", ]
+LOCAL_APPS = ["pulse_ai.users","pulse_ai.therapist_session","pulse_ai.patients","pulse_ai.favorites"]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
@@ -351,3 +353,6 @@ REST_USE_JWT = True
 REST_AUTH = {
     'USE_JWT': True,
 }
+
+MAX_SUMMARY_REGENERATIONS = 3  # Example limit
+MAX_TRANSCRIPTION_REGENERATIONS = 3  # Example limit

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.db import models
 from drf_spectacular.utils import extend_schema_field
+from patients.models import Patient
 
 from pulse_ai.therapist_session.s3_client import S3Client
 from pulse_ai.users.models import User
@@ -11,10 +12,14 @@ class TherapistSession(models.Model):
     STATUS_CHOICES = (('pending', 'Pending'), ('done', 'Done'), ('failed', 'Failed'),)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', blank=False, null=False)
     therapist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='therapist_sessions')
-    session_name = models.CharField(max_length=50, blank=False, null=False, validators=[MinLengthValidator(5)])
+    session_name = models.CharField(max_length=50, blank=False, null=False)
+    description = models.TextField(null=True, blank=False)  # Add this line if not present
     session_audio = models.FileField(upload_to='sessions/')
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='sessions', null = False, blank=False)
+    summary_regeneration_count = models.PositiveIntegerField(default=0)
+    transcription_regeneration_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"
@@ -32,6 +37,13 @@ class TherapistSession(models.Model):
             return signed_url
         except Exception as e:
             return None
+
+
+    def can_regenerate_summary(self):
+        return self.summary_regeneration_count < settings.MAX_SUMMARY_REGENERATIONS
+
+    def can_regenerate_transcription(self):
+        return self.transcription_regeneration_count < settings.MAX_TRANSCRIPTION_REGENERATIONS
 
 
 class Transcription(models.Model):
