@@ -61,7 +61,7 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
                 "audio_url": session.session_audio.url,
                 "session_id": session.id,
                 "therapist_id": self.request.user.id,  # Include therapist ID
-                "patient_id": session.patient.id,  # Include patient ID
+                "patient_id": session.patient_id,  # Include patient ID
             }
             print("QUEUE DATA: ")
             print(data)
