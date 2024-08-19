@@ -1,6 +1,6 @@
 import magic
 from rest_framework import serializers
-
+from patients.serializers import PatientSerializer
 from pulse_ai import patients
 from pulse_ai.therapist_session.models import TherapistSession, Error, Transcription, Summary
 
@@ -63,6 +63,8 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
     errors = ErrorSerializer(many=True, read_only=True)
     summaries = SummarySerializer(many=True, read_only=True)
     transcriptions = TranscriptionSerializer(many=True, read_only=True)
+    patient = PatientSerializer(read_only=True)  # Use PatientSerializer instead of PrimaryKeyRelatedField
+
 
     class Meta:
         model = TherapistSession

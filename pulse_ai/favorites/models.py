@@ -8,7 +8,7 @@ class Favorite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'session')  # Ensures a user can't favorite the same session multiple times
+        unique_together = ('user', 'session')
 
     def __str__(self):
         return f"{self.user.username} - {self.session.session_name}"

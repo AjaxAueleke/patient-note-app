@@ -29,10 +29,12 @@ class TherapistSessionFilter(filters.FilterSet):
     status = filters.CharFilter(lookup_expr='iexact', help_text="Filter sessions by status")
     patient_name = filters.CharFilter(field_name="patient__name", lookup_expr='icontains', help_text="Filter sessions by patient name")
     session_name = filters.CharFilter(lookup_expr='icontains', help_text="Filter sessions by session name or description")
+    patient_id = filters.NumberFilter(field_name="patient_id", lookup_expr='exact', help_text="Filter sessions by patient ID")  # Added patient_id filter
+
 
     class Meta:
         model = TherapistSession
-        fields = ['date', 'status', 'patient_name', 'session_name']
+        fields = ['date', 'status', 'patient_name', 'session_name', 'patient_id']
 
 
 
@@ -43,7 +45,7 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_class = TherapistSessionFilter
     search_fields = ['session_name', 'description', 'patient__name']
-    ordering_fields = ['created_at', 'session_name', 'description', 'patient__name', 'status']  # Added fields for ordering
+    ordering_fields = ['created_at', 'session_name', 'description', 'patient__name', 'status', 'patient_id']  # Added patient_id for ordering
     ordering = ['-created_at']  # Default ordering
     pagination_class = StandardResultsSetPagination
 
@@ -90,18 +92,15 @@ class RegenerateTranscriptionViewSet(viewsets.ViewSet):
 
     def create(self, request, session_id):
         try:
-            # Check if the session belongs to the authenticated therapist
             session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
             if not session:
                 return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            # Get the last transcription for the session
             transcription = session.transcriptions.last()
             if not transcription:
                 return Response({'success': False, 'message': 'Transcription not found for this session'},
                                 status=status.HTTP_404_NOT_FOUND)
 
-            # Prepare data for SQS message
             data = {
                 "action": "regenerate-transcription",
                 "audio_url": session.session_audio.url,
@@ -126,11 +125,11 @@ class RegenerateTranscriptionViewSet(viewsets.ViewSet):
         sqs = boto3.client('sqs', aws_access_key_id=settings.FUNCTION_QUEUE_AWS_S3_AWS_ACCESS_KEY_ID,
                            aws_secret_access_key=settings.FUNCTION_QUEUE_AWS_S3_AWS_SECRET_ACCESS_KEY,
                            region_name=settings.AWS_REGION)
-        # Send message
         response = sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
                                     MessageGroupId='therapist-session-queue')
 
         print(response)
+
 
 
 class RegenerateSummaryViewSet(viewsets.ViewSet):
@@ -138,24 +137,20 @@ class RegenerateSummaryViewSet(viewsets.ViewSet):
 
     def create(self, request, session_id):
         try:
-            # Check if the session belongs to the authenticated therapist
             session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
             if not session:
                 return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            # Get the last transcription for the session
             transcription = session.transcriptions.last()
             if not transcription:
                 return Response({'success': False, 'message': 'Transcription not found for this session'},
                                 status=status.HTTP_404_NOT_FOUND)
 
-            # Fetch the transcription URL
             transcription_url = transcription.get_transcription_url()
             if not transcription_url:
                 return Response({'success': False, 'message': 'Failed to fetch transcription URL'},
                                 status=status.HTTP_404_NOT_FOUND)
 
-            # Prepare data for SQS message
             data = {
                 "action": "regenerate-summary",
                 "transcription_url": transcription_url,
@@ -180,13 +175,10 @@ class RegenerateSummaryViewSet(viewsets.ViewSet):
         sqs = boto3.client('sqs', aws_access_key_id=settings.FUNCTION_QUEUE_AWS_S3_AWS_ACCESS_KEY_ID,
                            aws_secret_access_key=settings.FUNCTION_QUEUE_AWS_S3_AWS_SECRET_ACCESS_KEY,
                            region_name=settings.AWS_REGION)
-        # Send message
         response = sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
                                     MessageGroupId='therapist-session-queue')
 
         print(response)
-
-
 
 
 # class SessionDataView(APIView):
