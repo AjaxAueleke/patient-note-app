@@ -95,6 +95,11 @@ class RegenerateTranscriptionViewSet(viewsets.ViewSet):
             session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
             if not session:
                 return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            if session.transcription_regeneration_count >= settings.MAX_TRANSCRIPTION_REGENERATIONS:
+                return Response({'success': False, 'message': 'Maximum number of transcription regenerations exceeded'},
+                                status=status.HTTP_403_FORBIDDEN)
+
 
             transcription = session.transcriptions.last()
             if not transcription:
@@ -140,6 +145,10 @@ class RegenerateSummaryViewSet(viewsets.ViewSet):
             session = TherapistSession.objects.filter(id=session_id, therapist=self.request.user).first()
             if not session:
                 return Response({'success': False, 'message': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            if session.summary_regeneration_count >= settings.MAX_SUMMARY_REGENERATIONS:
+                return Response({'success': False, 'message': 'Maximum number of summary regenerations exceeded'},
+                                status=status.HTTP_403_FORBIDDEN)
 
             transcription = session.transcriptions.last()
             if not transcription:
