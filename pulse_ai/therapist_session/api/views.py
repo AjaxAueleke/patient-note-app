@@ -229,6 +229,79 @@ class RegenerateSummaryViewSet(viewsets.ViewSet):
 #                                 status=status.HTTP_400_BAD_REQUEST)
 
 
+# class SessionDataView(APIView):
+#     def post(self, request, session_id):
+#         api_key = request.headers.get('X-API-KEY')
+#         if api_key != settings.THERAPIST_SESSION_POST_API_KEY:
+#             return Response({'success': False, 'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+#         session = TherapistSession.objects.filter(id=session_id).first()
+#         if not session:
+#             return Response({'success': False, 'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+#         is_regeneration = request.data.get('is_regeneration', 'false').lower().strip() == 'true'
+#         error = request.data.get('error', 'false').lower().strip() == 'true'
+
+#         if error:
+#             error_serializer = ErrorSerializer(
+#                 data={'session': session_id, 'error_message': request.data.get('error_message', ''),
+#                       'error_code': request.data.get('error_code', '')})
+#             if error_serializer.is_valid():
+#                 error_serializer.save()
+#                 session.status = 'failed'
+#                 session.save()
+#                 return Response({'success': True, 'data': error_serializer.data}, status=status.HTTP_201_CREATED)
+#             return Response({'success': False, 'errors': error_serializer.errors, 'message': 'Invalid data'},
+#                             status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             transcription_data = {'session': session_id,
+#                                    'transcription_text_file': request.FILES.get('transcription_file')}
+#             summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
+
+#             if is_regeneration:
+#                 # Handle regeneration
+#                 transcription = session.transcriptions.last()
+#                 summary = session.summaries.last()
+
+#                 if transcription and transcription_data['transcription_text_file']:
+#                     transcription_serializer = TranscriptionSerializer(transcription, data=transcription_data, partial=True)
+#                     if transcription_serializer.is_valid():
+#                         transcription_serializer.save()
+#                         session.transcription_regeneration_count += 1
+
+#                 if summary and summary_data['summary_text_file']:
+#                     summary_serializer = SummarySerializer(summary, data=summary_data, partial=True)
+#                     if summary_serializer.is_valid():
+#                         summary_serializer.save()
+#                         session.summary_regeneration_count += 1
+
+#                 session.status = 'done'
+#                 session.save()
+
+#                 return Response({'success': True, 'message': 'Transcription and/or summary updated after regeneration'},
+#                                 status=status.HTTP_200_OK)
+
+#             else:
+#                 # Handle new transcription and summary
+#                 transcription_serializer = TranscriptionSerializer(data=transcription_data)
+#                 summary_serializer = SummarySerializer(data=summary_data)
+
+#                 if transcription_serializer.is_valid() and summary_serializer.is_valid():
+#                     transcription_serializer.save()
+#                     summary_serializer.save()
+#                     session.status = 'done'
+#                     session.save()
+#                     return Response({'success': True, 'message': 'Transcription and summary added',
+#                                      'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
+#                                     status=status.HTTP_201_CREATED)
+#                 else:
+#                     errors = {}
+#                     if not transcription_serializer.is_valid():
+#                         errors['transcription'] = transcription_serializer.errors
+#                     if not summary_serializer.is_valid():
+#                         errors['summary'] = summary_serializer.errors
+#                     return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
+#                                     status=status.HTTP_400_BAD_REQUEST)
 class SessionDataView(APIView):
     def post(self, request, session_id):
         api_key = request.headers.get('X-API-KEY')
@@ -259,30 +332,26 @@ class SessionDataView(APIView):
             summary_data = {'session': session_id, 'summary_text_file': request.FILES.get('summary_file')}
 
             if is_regeneration:
-                # Handle regeneration
-                transcription = session.transcriptions.last()
-                summary = session.summaries.last()
+                # Handle regeneration by creating new transcription and summary records
+                transcription_serializer = TranscriptionSerializer(data=transcription_data)
+                summary_serializer = SummarySerializer(data=summary_data)
 
-                if transcription and transcription_data['transcription_text_file']:
-                    transcription_serializer = TranscriptionSerializer(transcription, data=transcription_data, partial=True)
-                    if transcription_serializer.is_valid():
-                        transcription_serializer.save()
-                        session.transcription_regeneration_count += 1
+                if transcription_serializer.is_valid():
+                    transcription_serializer.save()
+                    session.transcription_regeneration_count += 1
 
-                if summary and summary_data['summary_text_file']:
-                    summary_serializer = SummarySerializer(summary, data=summary_data, partial=True)
-                    if summary_serializer.is_valid():
-                        summary_serializer.save()
-                        session.summary_regeneration_count += 1
+                if summary_serializer.is_valid():
+                    summary_serializer.save()
+                    session.summary_regeneration_count += 1
 
                 session.status = 'done'
                 session.save()
 
-                return Response({'success': True, 'message': 'Transcription and/or summary updated after regeneration'},
+                return Response({'success': True, 'message': 'New transcription and/or summary created after regeneration'},
                                 status=status.HTTP_200_OK)
 
             else:
-                # Handle new transcription and summary
+                # Handle new transcription and summary (non-regeneration case)
                 transcription_serializer = TranscriptionSerializer(data=transcription_data)
                 summary_serializer = SummarySerializer(data=summary_data)
 
