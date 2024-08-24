@@ -41,9 +41,9 @@ class TherapistSessionFilter(filters.FilterSet):
 
 class TherapistSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TherapistSessionSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]       
     parser_classes = (MultiPartParser, FormParser)
-    filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)   
     filterset_class = TherapistSessionFilter
     search_fields = ['session_name', 'description', 'patient__name']
     ordering_fields = ['created_at', 'session_name', 'description', 'patient__name', 'status', 'patient_id']  # Added patient_id for ordering
