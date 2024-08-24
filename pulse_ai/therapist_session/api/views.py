@@ -13,6 +13,7 @@ from rest_framework.exceptions import APIException, ValidationError as DRFValida
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 
 from pulse_ai.therapist_session.api.pagination import StandardResultsSetPagination
@@ -30,11 +31,11 @@ class TherapistSessionFilter(filters.FilterSet):
     patient_name = filters.CharFilter(field_name="patient__name", lookup_expr='icontains', help_text="Filter sessions by patient name")
     session_name = filters.CharFilter(lookup_expr='icontains', help_text="Filter sessions by session name or description")
     patient_id = filters.NumberFilter(field_name="patient_id", lookup_expr='exact', help_text="Filter sessions by patient ID")  # Added patient_id filter
-
+    favorite = filters.BooleanFilter(field_name="favorite",help_text="Filter sessions by favorite status")
 
     class Meta:
         model = TherapistSession
-        fields = ['date', 'status', 'patient_name', 'session_name', 'patient_id']
+        fields = ['date', 'status', 'patient_name', 'session_name', 'patient_id', 'favorite']
 
 
 
@@ -74,7 +75,32 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
             logger.error(f"Unexpected error during session creation: {e}")
             print(e)
             raise APIException({"error": "An unexpected error occurred. Please try again later."})
+    
+    @action(detail=True, methods=['get'], url_path='toggle-favorite')
+    def toggle_favorite(self, request, pk=None):
+        try:
+            session = self.get_object()
+            session.favorite = not session.favorite
+            session.save()
 
+            return Response({
+                'status': 'success',
+                'message': 'Favorite status updated successfully.',
+                'data': {
+                    'therapist_id': session.therapist.id,
+                    'session_id': session.id,
+                    'favorite': session.favorite
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': 'An unexpected error occurred.',
+                'detail': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
     def _send_queue_message(self, data):
         queue_url = settings.SQS_URL
 
