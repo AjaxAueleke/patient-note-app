@@ -20,6 +20,7 @@ class TherapistSession(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='sessions', null = False, blank=False)
     summary_regeneration_count = models.PositiveIntegerField(default=0)
     transcription_regeneration_count = models.PositiveIntegerField(default=0)
+    favorite = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.session_name} by {self.therapist.username}"

@@ -9,7 +9,7 @@ class ErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Error
         fields = ['error_message', 'error_code', 'timestamp', 'session']
-
+    
 
 class SummarySerializer(serializers.ModelSerializer):
     summary_text_file_url = serializers.SerializerMethodField()

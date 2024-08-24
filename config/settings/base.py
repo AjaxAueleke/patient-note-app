@@ -85,7 +85,7 @@ THIRD_PARTY_APPS = [
     "dj_rest_auth.registration",
                     ]
 
-LOCAL_APPS = ["pulse_ai.users","pulse_ai.therapist_session","pulse_ai.patients","pulse_ai.favorites"]
+LOCAL_APPS = ["pulse_ai.users","pulse_ai.therapist_session","pulse_ai.patients"]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
