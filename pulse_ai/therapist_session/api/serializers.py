@@ -65,6 +65,7 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
     transcriptions = TranscriptionSerializer(many=True, read_only=True)
     patient = PatientSerializer(read_only=True)  # Use PatientSerializer instead of PrimaryKeyRelatedField
     patient_id = serializers.IntegerField(write_only=True)
+    favorite = serializers.BooleanField()
 
 
     class Meta:
@@ -81,7 +82,8 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
             'transcriptions',
             'status',
             'patient',
-            'patient_id'
+            'patient_id',
+            'favorite'
         ]
 
     def get_session_audio_url(self, obj):
