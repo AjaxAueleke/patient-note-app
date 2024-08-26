@@ -65,7 +65,7 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
     transcriptions = TranscriptionSerializer(many=True, read_only=True)
     patient = PatientSerializer(read_only=True)  # Use PatientSerializer instead of PrimaryKeyRelatedField
     patient_id = serializers.IntegerField(write_only=True)
-    favorite = serializers.BooleanField()
+    favorite = serializers.BooleanField(required=False,default=False)
 
 
     class Meta:
