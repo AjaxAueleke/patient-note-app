@@ -57,59 +57,16 @@ class TranscriptionSerializer(serializers.ModelSerializer):
         return value
 
 
-# class TherapistSessionSerializer(serializers.ModelSerializer):
-#     session_audio = serializers.FileField()
-#     session_audio_url = serializers.SerializerMethodField()
-#     errors = ErrorSerializer(many=True, read_only=True)
-#     summaries = SummarySerializer(many=True, read_only=True)
-#     transcriptions = TranscriptionSerializer(many=True, read_only=True)
-#     patient = PatientSerializer(read_only=True)  # Use PatientSerializer instead of PrimaryKeyRelatedField
-#     patient_id = serializers.IntegerField(write_only=True)
-#     favorite = serializers.BooleanField(required=False,default=False)
-
-
-#     class Meta:
-#         model = TherapistSession
-#         fields = [
-#             'id',
-#             'created_at',
-#             'session_name',
-#             'description',
-#             'session_audio',
-#             'session_audio_url',
-#             'errors',
-#             'summaries',
-#             'transcriptions',
-#             'status',
-#             'patient',
-#             'patient_id',
-#             'favorite'
-#         ]
-
-#     def get_session_audio_url(self, obj):
-#         return obj.get_session_audio_url()
-
-#     def validate_session_audio(self, value):
-#         # Existing validation logic
-#         if value.size > 1024 * 1024 * 50:
-#             raise serializers.ValidationError("Audio file is too large ( > 50MB ).")
-#         # mime = magic.Magic(mime=True)
-#         # mime_type = mime.from_buffer(value.read(2048))
-#         # print("MIME TYPE:", mime_type)
-
-#         # if not mime_type.startswith('audio'):
-#         #     raise serializers.ValidationError('This file is not an audio file.')
-#         # value.seek(0)
-#         return value
 class TherapistSessionSerializer(serializers.ModelSerializer):
-    session_audio = serializers.FileField(write_only=True)
-    session_audio_url = serializers.SerializerMethodField(read_only=True)
+    session_audio = serializers.FileField()
+    session_audio_url = serializers.SerializerMethodField()
     errors = ErrorSerializer(many=True, read_only=True)
     summaries = SummarySerializer(many=True, read_only=True)
     transcriptions = TranscriptionSerializer(many=True, read_only=True)
-    patient = PatientSerializer(read_only=True)
+    patient = PatientSerializer(read_only=True)  # Use PatientSerializer instead of PrimaryKeyRelatedField
     patient_id = serializers.IntegerField(write_only=True)
-    favorite = serializers.BooleanField(required=False, default=False)
+    favorite = serializers.BooleanField(required=False,default=False)
+
 
     class Meta:
         model = TherapistSession
@@ -126,46 +83,21 @@ class TherapistSessionSerializer(serializers.ModelSerializer):
             'status',
             'patient',
             'patient_id',
-            'favorite',
+            'favorite'
         ]
 
     def get_session_audio_url(self, obj):
         return obj.get_session_audio_url()
 
     def validate_session_audio(self, value):
-        if isinstance(value, dict):
-            # Assuming the `uri` is a base64 encoded string
-            file_data = value.get('uri')
-            file_type = value.get('type')  # File type will be handled generically
-            file_name = value.get('name', 'uploaded_audio')
-
-            if not file_data:
-                raise serializers.ValidationError("File data is missing.")
-
-            # Convert base64 to bytes
-            try:
-                # Removing the data URI prefix if it exists
-                if file_data.startswith('data:'):
-                    file_data = file_data.split(',')[1]
-                decoded_file = base64.b64decode(file_data)
-                # Preserve the original file extension
-                file_name_with_extension = f"{file_name}.{file_type.split('/')[-1]}"
-                file = ContentFile(decoded_file, name=file_name_with_extension)
-            except TypeError:
-                raise serializers.ValidationError("Invalid file format.")
-
-            # Now `file` is a Django `ContentFile` object
-            value = file
-        
-        # Ensure the file is below the size limit
+        # Existing validation logic
         if value.size > 1024 * 1024 * 50:
             raise serializers.ValidationError("Audio file is too large ( > 50MB ).")
+        # mime = magic.Magic(mime=True)
+        # mime_type = mime.from_buffer(value.read(2048))
+        # print("MIME TYPE:", mime_type)
 
-        # Optionally validate the MIME type
-        mime = magic.Magic(mime=True)
-        mime_type = mime.from_buffer(value.read(2048))
-        if not mime_type.startswith('audio'):
-            raise serializers.ValidationError('This file is not an audio file.')
-        value.seek(0)  # Reset the file pointer after reading
-        
+        # if not mime_type.startswith('audio'):
+        #     raise serializers.ValidationError('This file is not an audio file.')
+        # value.seek(0)
         return value
