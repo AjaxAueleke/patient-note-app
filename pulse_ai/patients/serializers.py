@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from .models import Patient
+# from pulse_ai.therapist_session.api.serializers import TherapistSessionSerializer
 
 class PatientSerializer(serializers.ModelSerializer):
     # Remove therapist from the list of fields exposed to the API
     therapist = serializers.PrimaryKeyRelatedField(read_only=True)  # Make it read-only if you want to include it in the response
+    # therapist_sessions = TherapistSessionSerializer(many=True, read_only=True, source='sessions')
 
     class Meta:
         model = Patient
