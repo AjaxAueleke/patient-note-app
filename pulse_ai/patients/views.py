@@ -84,6 +84,7 @@ from pulse_ai.therapist_session.api.serializers import TherapistSessionSerialize
 from pulse_ai.therapist_session.models import TherapistSession
 from pulse_ai.therapist_session.api.pagination import StandardResultsSetPagination
 
+
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
@@ -133,35 +134,22 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         try:
-            response = super().retrieve(request, *args, **kwargs)
-            return Response({
-                'status': 'success',
-                'data': response.data
-            }, status=status.HTTP_200_OK)
-        except NotFound:
-            return Response({
-                'status': 'error',
-                'message': 'Patient not found.'
-            }, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({
-                'status': 'error',
-                'message': 'An unexpected error occurred while fetching the patient.',
-                'detail': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=True, methods=['get'], url_path='details')
-    def get_patient_details_with_sessions(self, request, pk=None):
-        try:
             # Fetch the patient by ID
             patient = self.get_object()
 
             # Fetch all therapist sessions associated with this patient
-            therapist_sessions = TherapistSession.objects.filter(patient=patient)
+            therapist_sessions = TherapistSession.objects.filter(
+                patient=patient)
 
-            # Serialize the data
+            # Apply pagination to therapist sessions
+            paginator = StandardResultsSetPagination()
+            paginated_sessions = paginator.paginate_queryset(
+                therapist_sessions, request)
+            sessions_data = TherapistSessionSerializer(
+                paginated_sessions, many=True).data
+
+            # Serialize the patient data
             patient_data = PatientSerializer(patient).data
-            sessions_data = TherapistSessionSerializer(therapist_sessions, many=True).data
 
             # Combine the data into a structured response
             response_data = {
@@ -169,10 +157,7 @@ class PatientViewSet(viewsets.ModelViewSet):
                 'therapist_sessions': sessions_data
             }
 
-            return Response({
-                'status': 'success',
-                'data': response_data
-            }, status=status.HTTP_200_OK)
+            return paginator.get_paginated_response(response_data)
 
         except Patient.DoesNotExist:
             return Response({
