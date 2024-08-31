@@ -22,6 +22,11 @@ from .permissions import IsOwnerOrReadOnly
 from .serializers import TherapistSessionSerializer
 from .serializers import TranscriptionSerializer, SummarySerializer, ErrorSerializer
 
+from sendgrid import SendGridAPIClient, Email
+from sendgrid.helpers.mail import Mail, Content, Attachment
+import base64
+import os
+
 logger = logging.getLogger(__name__)
 
 
@@ -382,6 +387,9 @@ class SessionDataView(APIView):
                 session.status = 'done'
                 session.save()
 
+                # Send email with attachments
+                self.send_email_with_attachments(session, transcription_serializer.instance, summary_serializer.instance)
+
                 return Response({'success': True, 'message': 'New transcription and/or summary created after regeneration'},
                                 status=status.HTTP_200_OK)
 
@@ -395,6 +403,10 @@ class SessionDataView(APIView):
                     summary_serializer.save()
                     session.status = 'done'
                     session.save()
+
+                    # Send email with attachments
+                    self.send_email_with_attachments(session, transcription_serializer.instance, summary_serializer.instance)
+
                     return Response({'success': True, 'message': 'Transcription and summary added',
                                      'transcription': transcription_serializer.data, 'summary': summary_serializer.data},
                                     status=status.HTTP_201_CREATED)
@@ -406,3 +418,53 @@ class SessionDataView(APIView):
                         errors['summary'] = summary_serializer.errors
                     return Response({'success': False, 'errors': errors, 'message': 'Invalid data'},
                                     status=status.HTTP_400_BAD_REQUEST)
+
+    def send_email_with_attachments(self, session, transcription, summary):
+        try:
+            # Get the therapist's email
+            therapist_email = session.therapist.email
+
+            # Prepare the email content
+            subject = f"Session Files for {session.session_name}"
+            message = f"Attached are the transcription and summary files for the session: {session.session_name}."
+            from_email = Email("team@pulseai.au")
+            to_email = Email(therapist_email)
+            content = Content("text/plain", message)
+            mail = Mail(from_email, to_email, subject, content)
+
+            # Initialize S3 client
+            s3_client = boto3.client('s3')
+
+            # Add transcription file as attachment
+            if transcription.transcription_text_file:
+                transcription_key = transcription.transcription_text_file.name
+                transcription_file_obj = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=transcription_key)
+                transcription_data = transcription_file_obj['Body'].read()
+                encoded_transcription = base64.b64encode(transcription_data).decode()
+                transcription_attachment = Attachment()
+                transcription_attachment.file_content = encoded_transcription
+                transcription_attachment.file_type = "application/octet-stream"
+                transcription_attachment.file_name = transcription_key.split('/')[-1]
+                mail.add_attachment(transcription_attachment)
+
+            # Add summary file as attachment
+            if summary.summary_text_file:
+                summary_key = summary.summary_text_file.name
+                summary_file_obj = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=summary_key)
+                summary_data = summary_file_obj['Body'].read()
+                encoded_summary = base64.b64encode(summary_data).decode()
+                summary_attachment = Attachment()
+                summary_attachment.file_content = encoded_summary
+                summary_attachment.file_type = "application/octet-stream"
+                summary_attachment.file_name = summary_key.split('/')[-1]
+                mail.add_attachment(summary_attachment)
+
+            # Send the email
+            sg = SendGridAPIClient(api_key=settings.SENDGRID_API_KEY)
+            response = sg.send(mail)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+
+        except Exception as e:
+            print(f"Failed to send email: {e}")
