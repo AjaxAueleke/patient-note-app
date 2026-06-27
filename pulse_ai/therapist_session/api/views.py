@@ -29,11 +29,6 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
         # This ensures that users only see their own sessions
         return TherapistSession.objects.filter(therapist=self.request.user)
 
-    import logging
-
-    # Configure logging
-    logger = logging.getLogger(__name__)
-
     def perform_create(self, serializer):
         try:
             session = serializer.save(therapist=self.request.user)
