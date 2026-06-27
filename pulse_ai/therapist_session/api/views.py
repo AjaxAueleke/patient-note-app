@@ -63,7 +63,7 @@ class SessionDataView(APIView):
         if not session:
             return Response({'success': False, 'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        error = request.data.get('error', 'false').lower().strip(' ').strip() == 'true'
+        error = request.data.get('error', 'false').lower().strip() == 'true'
 
         if error:
             error_serializer = ErrorSerializer(
