@@ -173,10 +173,12 @@ patient-note-app/
 > the application code (settings, apps, models, API), but a few standard Django
 > bootstrap files that cookiecutter-django normally generates are **not committed
 > here** — notably `manage.py`, `config/wsgi.py`, `config/settings/__init__.py`
-> and `local.py`, the per-package `__init__.py` / `apps.py`, and a couple of
-> `users` helpers (`managers.py`, `adapters.py`, `forms.py`). You will need to
-> supply those (e.g. by scaffolding a cookiecutter-django project) before the
-> server will boot. The commands below describe the intended workflow.
+> and `local.py`, the per-package `__init__.py` / `apps.py`, a few `users`
+> helpers (`managers.py`, `adapters.py`, `forms.py`, `context_processors.py`),
+> and the `therapist_session` API's `permissions.py` (the `IsOwnerOrReadOnly`
+> class referenced by the session views). You will need to supply those (e.g. by
+> scaffolding a cookiecutter-django project) before the server will boot. The
+> commands below describe the intended workflow.
 
 ### Prerequisites
 
