@@ -24,8 +24,6 @@ class ValidatedImageField(serializers.ImageField):
 
         # Check the image resolution
         w, h = get_image_dimensions(file)
-        print("IMAGE HEIGHT:", h)
-        print("IMAGE width:", w)
         max_width = max_height = 8192  # pixels
         if w > max_width or h > max_height:
             raise serializers.ValidationError(f'Image dimensions should not exceed {max_width}x{max_height} pixels.')
@@ -100,10 +98,8 @@ class UserLoginSerializer(TokenObtainPairSerializer):
         fields = ("email", "password")
 
     def validate(self, data):
-        print(f"data in validate => {data}")
         try:
-            user = User.objects.get(email=data["email"])
-            print(f"user in validate UserLoginSerializer => {user}")
+            User.objects.get(email=data["email"])
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed("User does not exist")
         return data
@@ -115,7 +111,6 @@ class UserLoginSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super(UserLoginSerializer, cls).get_token(user)
-        print(f"token in get_token => {token}")
 
         # Add custom claims
         token["email"] = user.email
@@ -129,10 +124,8 @@ class UserLoginSerializer(TokenObtainPairSerializer):
         """
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         auth_token, token_created = Token.objects.get_or_create(user=user)
-        print(f"auth_token in login => {auth_token}")
         serializer = UserSerializer(user, context={"request": request})
         response_data = serializer.data
-        print(f"response_data in login => {response_data}")
         response_data["token"] = auth_token.key
         return response_data
 

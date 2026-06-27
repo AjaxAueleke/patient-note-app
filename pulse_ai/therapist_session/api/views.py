@@ -45,7 +45,6 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
             raise DRFValidationError({"error": "Invalid data provided. Please check your inputs."})
         except Exception as e:
             logger.error(f"Unexpected error during session creation: {e}")
-            print(e)
             raise APIException({"error": "An unexpected error occurred. Please try again later."})
 
     def _send_queue_message(self, data):
@@ -55,10 +54,8 @@ class TherapistSessionViewSet(viewsets.ModelViewSet):
                            aws_secret_access_key=settings.FUNCTION_QUEUE_AWS_S3_AWS_SECRET_ACCESS_KEY,
                            region_name=settings.AWS_REGION)
         # Send message
-        response = sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
-                                    MessageGroupId='therapist-session-queue')
-
-        print(response)
+        sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(data),
+                         MessageGroupId='therapist-session-queue')
 
 
 class SessionDataView(APIView):
