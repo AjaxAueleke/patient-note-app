@@ -1,4 +1,3 @@
-import boto3
 from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.db import models
@@ -30,9 +29,9 @@ class TherapistSession(models.Model):
             signed_url = s3_client.generate_presigned_url('get_object',
                                                           Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
                                                                   'Key': f'media/{self.session_audio.name}', },
-                                                          ExpiresIn=3600 * 24 * 6)  # URL expires in 1 hour
+                                                          ExpiresIn=3600 * 24 * 6)  # URL expires in 6 days
             return signed_url
-        except Exception as e:
+        except Exception:
             return None
 
 
@@ -53,7 +52,7 @@ class Transcription(models.Model):
                                                                   'Key': f'media/{self.transcription_text_file.name}'},
                                                           ExpiresIn=3600)  # URL expires in 1 hour
             return signed_url
-        except Exception as e:
+        except Exception:
             return None
 
 
@@ -73,7 +72,7 @@ class Summary(models.Model):
                                                                   'Key': f'media/{self.summary_text_file.name}'},
                                                           ExpiresIn=3600)  # URL expires in 1 hour
             return signed_url
-        except Exception as e:
+        except Exception:
             return None
 
 
