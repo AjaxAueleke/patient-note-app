@@ -1,4 +1,4 @@
-name: Pulse AI Deployement
+name: Pulse AI Deployment
 
 on:
   push:
