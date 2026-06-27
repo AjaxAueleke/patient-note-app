@@ -105,13 +105,12 @@ AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.Us
 # MIDDLEWARE
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
-MIDDLEWARE = ["pulse_ai.users.middleware.RequestLoggingMiddleware",
-              "django.middleware.security.SecurityMiddleware",
+MIDDLEWARE = ["django.middleware.security.SecurityMiddleware",
               "corsheaders.middleware.CorsMiddleware",
               "django.contrib.sessions.middleware.SessionMiddleware",
               "django.middleware.locale.LocaleMiddleware",
               "django.middleware.common.CommonMiddleware",
-              # "django.middleware.csrf.CsrfViewMiddleware",
+              "django.middleware.csrf.CsrfViewMiddleware",
               "django.contrib.auth.middleware.AuthenticationMiddleware",
               "django.contrib.messages.middleware.MessageMiddleware",
               "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -273,7 +272,7 @@ MEDIA_URL = f"https://{aws_s3_domain}/media/"
 COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
 STATIC_URL = f"https://{aws_s3_domain}/static/"
 
-SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(days=10), 'REFRESH_TOKEN_LIFETIME': timedelta(days=300),
+SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), 'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
               'ROTATE_REFRESH_TOKENS': True, 'BLACKLIST_AFTER_ROTATION': True, }
 
 # SQS
