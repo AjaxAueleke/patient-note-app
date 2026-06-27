@@ -19,7 +19,7 @@ class TherapistSession(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.session_name} by {self.therapist.username}"
+        return f"{self.session_name} by {self.therapist.email}"
 
     @extend_schema_field(str)
     def get_session_audio_url(self):
