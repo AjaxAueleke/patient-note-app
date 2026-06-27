@@ -28,7 +28,7 @@ class UserViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gener
         assert isinstance(self.request.user.id, int)
         return self.queryset.filter(id=self.request.user.id)
 
-    def destroy(self, request, *args):
+    def destroy(self, request, *args, **kwargs):
         # Get the user from the request (i.e., the logged-in user)
         user = request.user
         user.delete()
